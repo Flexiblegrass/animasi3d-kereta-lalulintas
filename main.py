@@ -98,10 +98,11 @@ def draw_lampu(x,z,merah):
     else:         bola(x,3.45,z+0.05,0.16,cr=0.0,cg=0.25,cb=0.0)
 
 def draw_pos_jaga():
-    box(5.5,0.15,0,2.2,0.3,2.2,0.4,0.35,0.28)  
-    box(5.5,1.65,0,2.4,0.15,2.4,0.55,0.28,0.18)
-    box(5.5,0.95,1.05,1.0,0.5,0.05,0.6,0.82,0.9)
-    box(5.5,0.65,-1.0,0.7,0.8,0.05,0.5,0.35,0.2)
+    # Di samping lampu lalu lintas (lampu ada di x=2.5, z=5.0)
+    box(5.5,0.15,5.0,2.2,0.3,2.2,0.4,0.35,0.28)
+    box(5.5,1.65,5.0,2.4,0.15,2.4,0.55,0.28,0.18)
+    box(5.5,0.95,4.05,1.0,0.5,0.05,0.6,0.82,0.9)
+    box(5.5,0.65,6.0,0.7,0.8,0.05,0.5,0.35,0.2)
 
 def draw_portal(sudut,merah):
     draw_satu_palang(-1.5,-2.5, sudut)
@@ -148,9 +149,15 @@ def draw_gerbong(ox,r=0.15,g=0.45,b=0.70):
     glPopMatrix()
 
 def draw_kereta(px):
-    draw_lokomotif(px)
+    # Putar lokomotif 180° supaya moncong menghadap kanan (arah datang)
+    glPushMatrix()
+    glTranslatef(px, 0, 0)
+    glRotatef(180, 0, 1, 0)
+    draw_lokomotif(0)
+    glPopMatrix()
+    # Gerbong di belakang lokomotif (ke kanan = arah datang)
     for i in range(4):
-        draw_gerbong(px-5.8-i*5.6)
+        draw_gerbong(px + 5.8 + i * 5.6)
 
 # ═══════════════════════════════════════════════
 #  KENDARAAN
@@ -241,9 +248,11 @@ def update(dt):
         if ftimer>2.5: fase=2; ftimer=0.0; palang=0.0
     elif fase==2:
         merah=True; palang=0.0; kereta_x-=14.0*dt
-        if ftimer>5.5: fase=3; ftimer=0.0
+        # Lokomotif sudah lewat portal (pusat scene ~x=0), mulai angkat palang
+        if kereta_x < -30.0: fase=3; ftimer=0.0
     elif fase==3:
         merah=True; palang=lerp(0.0,90.0,ftimer/2.0)
+        kereta_x-=14.0*dt          # kereta tetap jalan
         if ftimer>2.0: fase=0; ftimer=0.0; merah=False; palang=90.0; kereta_x=55.0
     for k in kendaraan: k.update(dt,fase in(1,2,3))
 
