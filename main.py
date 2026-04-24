@@ -112,11 +112,11 @@ def draw_rel():
 def draw_satu_palang(x, z, sudut, arah=1):
     glPushMatrix(); glTranslatef(x, 0, z)
     box(0, 0.1, 0, 0.5,0.2,0.5, 0.3,0.3,0.3)
-    tiang_vertikal(0, 0.2, 0, 0.12, 1.4, 10, 0.15,0.15,0.15)
-    box(0, 1.65, 0, 0.42,0.32,0.42, 0.12,0.12,0.12)
-    bola(0, 1.90, 0, 0.11, cr=0.9, cg=0.1, cb=0.1)
+    tiang_vertikal(0, 0.2, 0, 0.12, 0.8, 10, 0.15,0.15,0.15)
+    box(0, 1.05, 0, 0.42,0.32,0.42, 0.12,0.12,0.12)
+    bola(0, 1.30, 0, 0.11, cr=0.9, cg=0.1, cb=0.1)
     sudut_efektif = sudut if arah == 1 else -sudut
-    glTranslatef(0, 1.65, 0); glRotatef(sudut_efektif, 0, 0, 1)
+    glTranslatef(0, 1.05, 0); glRotatef(sudut_efektif, 0, 0, 1)
     for i in range(14):
         px = arah * (i*0.5 + 0.25)
         if i % 2 == 0: box(px, 0, 0, 0.48,0.13,0.13, 0.9,0.1,0.1)
@@ -234,12 +234,53 @@ def draw_indomaret(x, z, rot):
     box(2.5, 4.0, 3.0, 1.5, 0.8, 0.2, 0.0, 0.3, 0.7) # Background biru neon box
     glPopMatrix()
 
+def draw_bangunan():
+    """Tempatkan rumah dan ruko di semua sisi perlintasan."""
+    # ── Sisi kiri jalan (x negatif) ──────────────────────────
+    # Rumah-rumah di sepanjang jalur kiri
+    draw_rumah_indo(-10, -18, 90,  (0.90, 0.85, 0.75))
+    draw_rumah_indo(-10, -10, 90,  (0.80, 0.70, 0.60))
+    draw_rumah_indo(-10,  -2, 90,  (0.75, 0.80, 0.70))
+    draw_rumah_indo(-10,   8, 90,  (0.88, 0.78, 0.65))
+    draw_rumah_indo(-10,  16, 90,  (0.70, 0.75, 0.80))
+    draw_rumah_indo(-10,  24, 90,  (0.85, 0.72, 0.68))
+
+    # Ruko di sisi kiri dekat perlintasan
+    draw_indomaret(-14,   5, 90)
+    draw_indomaret(-14, -12, 90)
+
+    # ── Sisi kanan jalan (x positif) ─────────────────────────
+    draw_rumah_indo(10, -20, -90, (0.82, 0.76, 0.65))
+    draw_rumah_indo(10,  -8, -90, (0.78, 0.82, 0.72))
+    draw_rumah_indo(10,   2, -90, (0.88, 0.80, 0.68))
+    draw_rumah_indo(10,  12, -90, (0.72, 0.78, 0.85))
+    draw_rumah_indo(10,  22, -90, (0.80, 0.70, 0.72))
+
+    # Ruko di sisi kanan
+    draw_indomaret(14,  10, -90)
+    draw_indomaret(14, -15, -90)
+
+    # ── Belakang rel (z negatif, sisi jauh) ──────────────────
+    draw_rumah_indo(-18, -25, 0,  (0.85, 0.80, 0.70))
+    draw_rumah_indo( -8, -25, 0,  (0.75, 0.82, 0.68))
+    draw_rumah_indo(  2, -25, 0,  (0.90, 0.75, 0.65))
+    draw_rumah_indo( 12, -25, 0,  (0.80, 0.85, 0.72))
+    draw_indomaret(  20, -25, 0)
+
+    # ── Depan rel (z positif, sisi dekat kamera default) ─────
+    draw_rumah_indo(-18,  25, 180, (0.88, 0.78, 0.70))
+    draw_rumah_indo( -8,  25, 180, (0.78, 0.80, 0.75))
+    draw_rumah_indo(  2,  25, 180, (0.82, 0.72, 0.68))
+    draw_rumah_indo( 12,  25, 180, (0.76, 0.82, 0.78))
+    draw_indomaret( 20,  25, 180)
+
 def draw_portal(sudut, merah):
     draw_satu_palang(-4.5,-2.5, sudut, arah=+1)
     draw_satu_palang( 4.5, 2.5, sudut, arah=-1)
     draw_lampu( 4.5,-3.5, merah, arah_z=-1)
     draw_lampu(-4.5, 3.5, merah, arah_z=+1)
     draw_pos_jaga()
+    
 
 
 
@@ -373,20 +414,38 @@ class Kendaraan:
 
     def update(self, dt, palang_tutup, depan_z=None):
         """Update posisi kendaraan dengan logika berhenti."""
-        jarak_aman = 3.2 if self.tipe == 'motor' else 4.5
+        jarak_aman   = 2.5 if self.tipe == 'motor' else 3.5
+        panjang_body = 1.2 if self.tipe == 'motor' else 1.8
 
         # Tentukan batas berhenti sebelum rel
-        batas_berhenti = 5.8 * self.arah  # sedikit jauh dari rel
+        batas_berhenti = 5.5 * self.arah
+
+        # Cek apakah kendaraan sudah melewati palang
+        sudah_lewat = (
+            (self.arah ==  1 and self.z >= batas_berhenti) or
+            (self.arah == -1 and self.z <= batas_berhenti)
+        )
 
         # Logika berhenti di palang
-        if palang_tutup:
-            sudah_lewat_batas = (
-                (self.arah ==  1 and self.z >= batas_berhenti) or
-                (self.arah == -1 and self.z <= batas_berhenti)
-            )
-            if not sudah_lewat_batas:
-                self.berhenti = True
-                return
+        if palang_tutup and not sudah_lewat:
+            # Hitung posisi berhenti: rapat di belakang kendaraan depan,
+            # atau tepat di batas palang kalau tidak ada kendaraan depan
+            if depan_z is not None:
+                posisi_berhenti = depan_z - self.arah * panjang_body
+            else:
+                posisi_berhenti = batas_berhenti - self.arah * panjang_body
+
+            # Gerak maju kalau masih belum sampai posisi berhenti
+            selisih = (posisi_berhenti - self.z) * self.arah
+            if selisih > 0.1:
+                self.z += self.arah * self.speed * dt
+                # Jangan lewati posisi berhenti
+                if (self.arah == 1  and self.z > posisi_berhenti) or \
+                   (self.arah == -1 and self.z < posisi_berhenti):
+                    self.z = posisi_berhenti
+            self.berhenti = True
+            return
+
         self.berhenti = False
 
         # Logika jaga jarak antar kendaraan
@@ -823,8 +882,8 @@ def main():
         sim.update(dt)
 
         # Update kendaraan
-        jalur_kiri  = sorted([k for k in kendaraan if k.x < 0], key=lambda k: k.z)
-        jalur_kanan = sorted([k for k in kendaraan if k.x > 0], key=lambda k: -k.z)
+        jalur_kiri  = sorted([k for k in kendaraan if k.x < 0], key=lambda k: -k.z)
+        jalur_kanan = sorted([k for k in kendaraan if k.x > 0], key=lambda k:  k.z)
         for jalur in (jalur_kiri, jalur_kanan):
             for i, k in enumerate(jalur):
                 depan = jalur[i-1] if i > 0 else None
@@ -847,6 +906,7 @@ def main():
         draw_jalan()
         draw_rel()
         draw_portal(sim.palang, sim.merah)
+        draw_bangunan()
         for k in kendaraan:
             k.draw()
         if sim.fase in (FASE_TUTUP, FASE_KERETA, FASE_BUKA):
