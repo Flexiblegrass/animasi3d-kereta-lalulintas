@@ -295,16 +295,18 @@ WARNA = [
 ]
 
 def draw_roda_k(x, y, z, r=0.28):
+    tebal_ban = 0.15
     glPushMatrix()
     glTranslatef(x, y, z)
-    # Rotasi diubah agar silinder berdiri tegak (vertikal) menghadap samping
     glRotatef(90, 0, 1, 0) 
+    glTranslatef(0, 0, -tebal_ban / 2)
     glColor3f(0.12, 0.12, 0.12)
     q = gluNewQuadric()
-    gluCylinder(q, r, r, 0.15, 15, 1)
-    # Tutup roda
+    # Gambar badan ban
+    gluCylinder(q, r, r, tebal_ban, 15, 1)
+    # Tutup roda sisi dalam
     gluDisk(q, 0, r, 15, 1)
-    glTranslatef(0, 0, 0.15)
+    glTranslatef(0, 0, tebal_ban)
     gluDisk(q, 0, r, 15, 1)
     gluDeleteQuadric(q)
     glPopMatrix()
