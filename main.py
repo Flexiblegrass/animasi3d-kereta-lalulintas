@@ -25,11 +25,6 @@ def silinder(cx,cy,cz,r,h,sl=10,cr=0.5,cg=0.5,cb=0.5):
     gluDisk(q,0,r,sl,1); glTranslatef(0,0,h); gluDisk(q,0,r,sl,1)
     gluDeleteQuadric(q); glPopMatrix()
 
-def kerucut(cx,cy,cz,base,h,sl=8,cr=0.5,cg=0.5,cb=0.5):
-    glColor3f(cr,cg,cb); glPushMatrix(); glTranslatef(cx,cy,cz)
-    q=gluNewQuadric(); gluCylinder(q,base,0,h,sl,1)
-    gluDisk(q,0,base,sl,1); gluDeleteQuadric(q); glPopMatrix()
-
 def bola(cx,cy,cz,r,sl=10,st=10,cr=1,cg=1,cb=1):
     glColor3f(cr,cg,cb); glPushMatrix(); glTranslatef(cx,cy,cz)
     q=gluNewQuadric(); gluSphere(q,r,sl,st)
@@ -42,15 +37,11 @@ def lerp(a,b,t): return a+(b-a)*max(0.0,min(1.0,t))
 # ═══════════════════════════════════════════════
 def draw_pohon(x,z):
     glPushMatrix(); glTranslatef(x,0,z)
-    glRotatef(-90,1,0,0)   # putar agar sumbu Z lokal → arah Y (atas)
+    glRotatef(-90,1,0,0)
     q=gluNewQuadric()
-    # Batang
     glColor3f(0.35,0.20,0.08); gluCylinder(q,0.18,0.12,1.8,7,1)
-    # Layer daun 1
     glColor3f(0.18,0.50,0.15); glTranslatef(0,0,1.5); gluCylinder(q,1.1,0.0,1.4,9,1)
-    # Layer daun 2
     glTranslatef(0,0,0.8); gluCylinder(q,0.9,0.0,1.2,9,1)
-    # Layer daun 3
     glTranslatef(0,0,0.7); gluCylinder(q,0.65,0.0,1.0,9,1)
     gluDeleteQuadric(q); glPopMatrix()
 
@@ -82,7 +73,6 @@ def draw_rel():
 #  PORTAL
 # ═══════════════════════════════════════════════
 def draw_tiang_vertikal(x,y,z,r,h,sl,cr,cg,cb):
-    """Silinder vertikal (tumbuh ke arah +Y)."""
     glPushMatrix(); glTranslatef(x,y,z)
     glRotatef(-90,1,0,0)
     q=gluNewQuadric(); gluCylinder(q,r,r,h,sl,1)
@@ -90,35 +80,35 @@ def draw_tiang_vertikal(x,y,z,r,h,sl,cr,cg,cb):
     gluDeleteQuadric(q); glPopMatrix()
 
 def draw_satu_palang(x,z,sudut,arah=1):
-    """arah: +1 palang menjulur ke +x, -1 ke -x"""
     glPushMatrix(); glTranslatef(x,0,z)
     box(0,0.1,0,0.5,0.2,0.5,0.3,0.3,0.3)
-    draw_tiang_vertikal(0,0.2,0,0.12,2.0,10,0.15,0.15,0.15)
-    box(0,2.25,0,0.45,0.35,0.45,0.12,0.12,0.12)
-    bola(0,2.55,0,0.12,cr=0.9,cg=0.1,cb=0.1)
-    glTranslatef(0,2.25,0); glRotatef(sudut,0,0,1)
-    for i in range(8):
+    draw_tiang_vertikal(0,0.2,0,0.12,1.4,10,0.15,0.15,0.15)
+    box(0,1.65,0,0.42,0.32,0.42,0.12,0.12,0.12)
+    bola(0,1.90,0,0.11,cr=0.9,cg=0.1,cb=0.1)
+    # arah=-1 (palang ke kiri) perlu sudut negatif agar naik ke atas, bukan ke bawah
+    sudut_efektif = sudut if arah==1 else -sudut
+    glTranslatef(0,1.65,0); glRotatef(sudut_efektif,0,0,1)
+    for i in range(14):   # diperpanjang: 14 segmen
         px=arah*(i*0.5+0.25)
         if i%2==0: box(px,0,0,0.48,0.13,0.13,0.9,0.1,0.1)
         else:      box(px,0,0,0.48,0.13,0.13,0.95,0.95,0.95)
-    bola(arah*4.25,0,0,0.18,cr=0.9,cg=0.1,cb=0.1)
-    box(arah*2.0,0.08,0,3.8,0.04,0.14,1.0,0.85,0.0)
+    bola(arah*7.25,0,0,0.18,cr=0.9,cg=0.1,cb=0.1)
+    box(arah*3.5,0.08,0,6.8,0.04,0.14,1.0,0.85,0.0)
     glPopMatrix()
 
-def draw_lampu(x,z,merah,arah=-1):
-    """arah: -1 lengan ke kiri (-x), +1 lengan ke kanan (+x)"""
+def draw_lampu(x,z,merah,arah_z=1):
     box(x,0.1,z,0.55,0.2,0.55,0.28,0.28,0.28)
-    draw_tiang_vertikal(x,0.2,z,0.10,2.0,10,0.18,0.18,0.18)
-    draw_tiang_vertikal(x,2.2,z,0.085,1.2,10,0.18,0.18,0.18)
-    lx = x + arah*1.1
-    box(x+arah*0.5,3.55,z,1.1,0.1,0.1,0.18,0.18,0.18)
-    box(lx,3.55,z,0.22,0.75,0.28,0.08,0.08,0.08)
-    box(lx,3.95,z,0.28,0.08,0.32,0.12,0.12,0.12)
-    if merah: bola(lx,3.72,z,0.14,cr=1.0,cg=0.05,cb=0.05)
-    else:     bola(lx,3.72,z,0.14,cr=0.25,cg=0.0,cb=0.0)
-    if not merah: bola(lx,3.35,z,0.14,cr=0.05,cg=1.0,cb=0.05)
-    else:         bola(lx,3.35,z,0.14,cr=0.0,cg=0.18,cb=0.0)
-    box(x+arah*0.72,3.58,z,0.5,0.05,0.05,0.1,0.1,0.1)
+    draw_tiang_vertikal(x,0.2,z,0.10,2.2,10,0.18,0.18,0.18)
+    draw_tiang_vertikal(x,2.4,z,0.085,1.0,10,0.18,0.18,0.18)
+    # Housing membelakangi: lampu z- → housing ke z- (arah_z=-1), lampu z+ → ke z+ (arah_z=+1)
+    lz = z + arah_z*1.0
+    box(x,3.55,z+arah_z*0.5,0.1,0.1,1.1,0.18,0.18,0.18)
+    box(x,3.55,lz,0.28,0.75,0.22,0.08,0.08,0.08)
+    box(x,3.95,lz,0.32,0.08,0.28,0.12,0.12,0.12)
+    if merah: bola(x,3.72,lz,0.14,cr=1.0,cg=0.05,cb=0.05)
+    else:     bola(x,3.72,lz,0.14,cr=0.25,cg=0.0,cb=0.0)
+    if not merah: bola(x,3.35,lz,0.14,cr=0.05,cg=1.0,cb=0.05)
+    else:         bola(x,3.35,lz,0.14,cr=0.0,cg=0.18,cb=0.0)
 
 def draw_prisma_atap(cx,cy,cz,lx,tinggi,lz,r,g,b):
     glColor3f(r,g,b)
@@ -140,89 +130,81 @@ def draw_pos_jaga():
     px, pz = 9.5, 9.0
     tw=0.18; w=1.4; h=1.7
     wc=(0.82,0.78,0.70)
-    xl = px - w - tw/2   # muka luar tembok kiri
-    xr = px + w + tw/2   # muka luar tembok kanan
-    zf = pz - w - tw/2   # muka luar tembok depan
-    zb = pz + w + tw/2   # muka luar tembok belakang
+    xl = px - w - tw/2
+    xr = px + w + tw/2
+    zf = pz - w - tw/2
+    zb = pz + w + tw/2
 
-    # --- PONDASI ---
+    # Pondasi
     box(px,0.08,pz,(w+tw)*2,0.16,(w+tw)*2,0.35,0.32,0.28)
 
-    # --- TEMBOK 4 SISI ---
-    box(px,    h/2+0.16, zf, (w+tw)*2, h, tw, *wc)   # depan
-    box(px,    h/2+0.16, zb, (w+tw)*2, h, tw, *wc)   # belakang
-    box(xl,    h/2+0.16, pz, tw, h, w*2, *wc)         # kiri
-    box(xr,    h/2+0.16, pz, tw, h, w*2, *wc)         # kanan
+    # Tembok 4 sisi full
+    box(px,    h/2+0.16, zf, (w+tw)*2, h, tw, *wc)
+    box(px,    h/2+0.16, zb, (w+tw)*2, h, tw, *wc)
+    box(xl,    h/2+0.16, pz, tw, h, w*2, *wc)
+    box(xr,    h/2+0.16, pz, tw, h, w*2, *wc)
 
-    # --- JENDELA DEPAN (2 buah, menonjol keluar 0.15) ---
-    jof = 0.15   # offset keluar dari muka tembok
+    # Jendela depan (2 buah, menonjol keluar 0.15)
+    jof = 0.15
     for jx in [px-0.55, px+0.40]:
-        box(jx,    1.05, zf-jof,       0.72, 0.52, 0.06, 0.55, 0.80, 0.92)  # kaca
-        box(jx,    1.05, zf-jof-0.03,  0.82, 0.62, 0.06, 0.38, 0.22, 0.08)  # kusen luar
-        box(jx,    1.05, zf-jof-0.01,  0.72, 0.04, 0.07, 0.30, 0.18, 0.06)  # palang horiz
-        box(jx,    1.05, zf-jof-0.01,  0.04, 0.52, 0.07, 0.30, 0.18, 0.06)  # palang vert
+        box(jx,    1.05, zf-jof,       0.72, 0.52, 0.06, 0.55, 0.80, 0.92)
+        box(jx,    1.05, zf-jof-0.03,  0.82, 0.62, 0.06, 0.38, 0.22, 0.08)
+        box(jx,    1.05, zf-jof-0.01,  0.72, 0.04, 0.07, 0.30, 0.18, 0.06)
+        box(jx,    1.05, zf-jof-0.01,  0.04, 0.52, 0.07, 0.30, 0.18, 0.06)
 
-    # --- PINTU KIRI (menonjol keluar 0.15 dari tembok kiri) ---
+    # Pintu kiri (menonjol keluar 0.15)
     pof = 0.15
-    box(xl-pof,      0.55, pz,      0.06, 1.00, 0.82, 0.42, 0.26, 0.12)  # daun pintu
-    box(xl-pof-0.04, 0.55, pz,      0.05, 1.08, 0.94, 0.28, 0.16, 0.06)  # kusen frame
-    box(xl-pof-0.02, 1.12, pz,      0.08, 0.07, 0.88, 0.25, 0.14, 0.05)  # ambang atas
-    box(xl-pof-0.06, 0.60, pz-0.18, 0.08, 0.08, 0.08, 0.72, 0.60, 0.40) # gagang
+    box(xl-pof,      0.55, pz,      0.06, 1.00, 0.82, 0.42, 0.26, 0.12)
+    box(xl-pof-0.04, 0.55, pz,      0.05, 1.08, 0.94, 0.28, 0.16, 0.06)
+    box(xl-pof-0.02, 1.12, pz,      0.08, 0.07, 0.88, 0.25, 0.14, 0.05)
+    box(xl-pof-0.06, 0.60, pz-0.18, 0.08, 0.08, 0.08, 0.72, 0.60, 0.40)
 
-    # --- JENDELA SAMPING KANAN (menonjol keluar 0.15 dari tembok kanan) ---
-    box(xr+pof,      1.05, pz,      0.06, 0.52, 0.74, 0.55, 0.80, 0.92)  # kaca
-    box(xr+pof+0.03, 1.05, pz,      0.05, 0.62, 0.84, 0.38, 0.22, 0.08)  # kusen
-    box(xr+pof+0.01, 1.05, pz,      0.07, 0.04, 0.74, 0.30, 0.18, 0.06)  # palang horiz
-    box(xr+pof+0.01, 1.05, pz,      0.07, 0.52, 0.04, 0.30, 0.18, 0.06)  # palang vert
+    # Jendela samping kanan (menonjol keluar 0.15)
+    box(xr+pof,      1.05, pz,      0.06, 0.52, 0.74, 0.55, 0.80, 0.92)
+    box(xr+pof+0.03, 1.05, pz,      0.05, 0.62, 0.84, 0.38, 0.22, 0.08)
+    box(xr+pof+0.01, 1.05, pz,      0.07, 0.04, 0.74, 0.30, 0.18, 0.06)
+    box(xr+pof+0.01, 1.05, pz,      0.07, 0.52, 0.04, 0.30, 0.18, 0.06)
 
-    # --- ATAP PRISMA ---
-    box(px, h+0.16, pz, (w+tw)*2+0.30, 0.12, (w+tw)*2+0.30, 0.55,0.22,0.10)
-    draw_prisma_atap(px, h+0.22, pz, (w+tw)*2+0.25, 0.85, (w+tw)*2+0.25, 0.62,0.18,0.08)
-    box(px, h+1.07, pz, (w+tw)*2+0.15, 0.10, 0.20, 0.45,0.14,0.06)
+    # Atap prisma
+    atap_lx = (w+tw)*2+0.25
+    atap_lz = (w+tw)*2+0.25
+    atap_y  = h+0.22
+    box(px, h+0.16, pz, atap_lx+0.05, 0.12, atap_lz+0.05, 0.55,0.22,0.10)
+    draw_prisma_atap(px, atap_y, pz, atap_lx, 0.85, atap_lz, 0.62,0.18,0.08)
+    # Bubungan = ridge di puncak prisma, sepanjang sisi z atap
+    box(px, atap_y+0.85, pz, 0.18, 0.10, atap_lz+0.10, 0.45,0.14,0.06)
 
-    # --- PAGAR MENGELILINGI BANGUNAN (jarak 1.5 dari muka tembok) ---
+    # Pagar mengelilingi bangunan (jarak 1.5 dari tembok)
     gap = 1.5
-    fx0 = xl - gap;   fx1 = xr + gap    # batas x pagar
-    fz0 = zf - gap;   fz1 = zb + gap    # batas z pagar
-    pc = (0.55, 0.38, 0.22)             # warna tiang/palang
-    tr = 0.05; th = 0.65               # radius tiang, tinggi
-
-    # Tiang-tiang di 4 sisi
-    # sisi depan (z=fz0)
-    for fx in [fx0, (fx0+fx1)/2-0.6, (fx0+fx1)/2, (fx0+fx1)/2+0.6, fx1]:
+    fx0 = xl - gap;   fx1 = xr + gap
+    fz0 = zf - gap;   fz1 = zb + gap
+    pc = (0.55, 0.38, 0.22)
+    tr = 0.05; th = 0.65
+    for fx in [fx0, (fx0+fx1)/2-0.6, (fx0+fx1)/2+0.6, fx1]:
         draw_tiang_vertikal(fx, 0.16, fz0, tr, th, 6, *pc)
-    # sisi belakang (z=fz1)
     for fx in [fx0, (fx0+fx1)/2, fx1]:
         draw_tiang_vertikal(fx, 0.16, fz1, tr, th, 6, *pc)
-    # sisi kiri (x=fx0)
     for fz in [fz0+0.7, pz, fz1-0.7]:
         draw_tiang_vertikal(fx0, 0.16, fz, tr, th, 6, *pc)
-    # sisi kanan (x=fx1)
     for fz in [fz0+0.7, pz, fz1-0.7]:
         draw_tiang_vertikal(fx1, 0.16, fz, tr, th, 6, *pc)
-
     lx = fx1-fx0; lz = fz1-fz0
-    # Palang horizontal 2 ketinggian di 4 sisi
     for fy in [0.38, 0.72]:
-        box((fx0+fx1)/2, fy, fz0, lx, 0.06, 0.06, *pc)   # depan
-        box((fx0+fx1)/2, fy, fz1, lx, 0.06, 0.06, *pc)   # belakang
-        box(fx0, fy, (fz0+fz1)/2, 0.06, 0.06, lz, *pc)   # kiri
-        box(fx1, fy, (fz0+fz1)/2, 0.06, 0.06, lz, *pc)   # kanan
-
-    # Pintu pagar di sisi depan-kiri
-    box((fx0+fx1)/2-0.3, 0.45, fz0-0.03, 0.55, 0.60, 0.05, 0.45,0.30,0.14)
+        box((fx0+fx1)/2, fy, fz0, lx, 0.06, 0.06, *pc)
+        box((fx0+fx1)/2, fy, fz1, lx, 0.06, 0.06, *pc)
+        box(fx0, fy, (fz0+fz1)/2, 0.06, 0.06, lz, *pc)
+        box(fx1, fy, (fz0+fz1)/2, 0.06, 0.06, lz, *pc)
+    # Pintu pagar di sisi kiri (fx0), sejajar z dengan pintu pos (pz)
+    box(fx0-0.03, 0.45, pz, 0.05, 0.60, 0.55, 0.45,0.30,0.14)
 
 def draw_portal(sudut,merah):
-    # Sisi KIRI jalan (x=-4.5): palang ke kanan (+x), lampu lengan ke kanan (+x)
-    draw_satu_palang(-4.5,-2.5, sudut, arah=+1)
-    draw_satu_palang(-4.5, 2.5,-sudut, arah=+1)
-    draw_lampu(-4.5,-5.0,merah,arah=+1)
-    draw_lampu(-4.5, 5.0,merah,arah=+1)
-    # Sisi KANAN jalan (x=+4.5): palang ke kiri (-x), lampu lengan ke kiri (-x)
-    draw_satu_palang( 4.5,-2.5,-sudut, arah=-1)
-    draw_satu_palang( 4.5, 2.5, sudut, arah=-1)
-    draw_lampu( 4.5,-5.0,merah,arah=-1)
-    draw_lampu( 4.5, 5.0,merah,arah=-1)
+    # 2 palang: sisi kiri (x=-4.5) menjulur ke kanan, sisi kanan (x=+4.5) ke kiri
+    draw_satu_palang(-4.5, -2.5, sudut, arah=+1)
+    draw_satu_palang( 4.5,  2.5, sudut, arah=-1)
+    # Lampu sisi kanan (x=+4.5), jauh dari pos, housing ke z-
+    draw_lampu( 4.5, -3.5, merah, arah_z=-1)
+    # Lampu sisi kiri/seberang (x=-4.5), dekat pos dipindah ke seberang, housing ke z+
+    draw_lampu(-4.5,  3.5, merah, arah_z=+1)
     draw_pos_jaga()
 
 # ═══════════════════════════════════════════════
@@ -263,13 +245,11 @@ def draw_gerbong(ox,r=0.15,g=0.45,b=0.70):
     glPopMatrix()
 
 def draw_kereta(px):
-    # Putar lokomotif 180° supaya moncong menghadap kanan (arah datang)
     glPushMatrix()
     glTranslatef(px, 0, 0)
     glRotatef(180, 0, 1, 0)
     draw_lokomotif(0)
     glPopMatrix()
-    # Gerbong di belakang lokomotif (ke kanan = arah datang)
     for i in range(4):
         draw_gerbong(px + 5.8 + i * 5.6)
 
@@ -312,36 +292,33 @@ def draw_motor(x,z,wi=0):
 class Kendaraan:
     def __init__(self,z,x,tipe,warna):
         self.z=z; self.x=x; self.tipe=tipe; self.warna=warna
-        self.arah=1 if x<0 else -1   # jalur kiri (x=-1.5) maju +z, jalur kanan (x=1.5) maju -z
-        self.speed=4.0               # semua kecepatan sama, tidak ada yang nyusul
+        self.arah=1 if x<0 else -1
+        self.speed=4.0
     def update(self,dt,tutup,depan_z=None):
-        jarak_aman = 4.0 if self.tipe=='mobil' else 3.0
+        jarak_aman = 4.5 if self.tipe=='mobil' else 3.5
         if tutup:
-            # Berhenti sebelum portal (zona aman ±4.5)
-            batas = 4.5 * self.arah
-            boleh = (self.arah==1 and self.z < batas) or (self.arah==-1 and self.z > batas)
-            if not boleh: return
-        # Cek jarak ke kendaraan di depan
+            batas = 4.0 * self.arah
+            dekat_palang = (self.arah==1 and self.z >= batas) or \
+                           (self.arah==-1 and self.z <= batas)
+            if dekat_palang: return
         if depan_z is not None:
             jarak = (depan_z - self.z) * self.arah
-            if jarak < jarak_aman: return  # tahan, jangan nabrak
+            if jarak < jarak_aman: return
         self.z += self.arah * self.speed * dt
-        if self.z > 30: self.z = -30
-        if self.z < -30: self.z = 30
+        if self.z >  32: self.z = -32
+        if self.z < -32: self.z =  32
     def draw(self):
-        glPushMatrix(); glTranslatef(self.x,0,self.z)
-        if self.arah==-1: glRotatef(180,0,1,0)
-        glTranslatef(-self.x,0,-self.z)
-        if self.tipe=='mobil': draw_mobil(self.x,self.z,self.warna)
-        else: draw_motor(self.x,self.z,self.warna)
+        glPushMatrix()
+        glTranslatef(self.x, 0, self.z)
+        if self.arah == -1: glRotatef(180, 0, 1, 0)
+        if self.tipe=='mobil': draw_mobil(0, 0, self.warna)
+        else:                  draw_motor(0, 0, self.warna)
         glPopMatrix()
 
 def buat_kendaraan():
     kd=[]
-    # Jalur kiri x=-1.5: arah +z, spacing 9 unit
     for i,t,w in [(-22,'mobil',0),(-13,'motor',2),(-4,'mobil',4),(5,'mobil',1),(14,'motor',3),(23,'mobil',6)]:
         kd.append(Kendaraan(i,-1.5,t,w))
-    # Jalur kanan x=1.5: arah -z, spacing 9 unit
     for i,t,w in [(22,'mobil',5),(13,'motor',1),(4,'mobil',2),(-5,'motor',0),(-14,'mobil',3),(-23,'mobil',6)]:
         kd.append(Kendaraan(i,1.5,t,w))
     return kd
@@ -366,11 +343,10 @@ def update(dt):
         if ftimer>2.5: fase=2; ftimer=0.0; palang=0.0
     elif fase==2:
         merah=True; palang=0.0; kereta_x-=14.0*dt
-        # Lokomotif sudah lewat portal (pusat scene ~x=0), mulai angkat palang
         if kereta_x < -30.0: fase=3; ftimer=0.0
     elif fase==3:
         merah=True; palang=lerp(0.0,90.0,ftimer/2.0)
-        kereta_x-=14.0*dt          # kereta tetap jalan
+        kereta_x-=14.0*dt
         if ftimer>2.0: fase=0; ftimer=0.0; merah=False; palang=90.0; kereta_x=55.0
     tutup = fase in(1,2,3)
     jalur_kiri  = sorted([k for k in kendaraan if k.x < 0], key=lambda k: k.z)
@@ -386,15 +362,12 @@ def main():
     win=glfw.create_window(1100,680,"Simulasi Perlintasan Kereta Api 3D - OpenGL",None,None)
     glfw.make_context_current(win)
 
-    # Callback resize window
     def on_resize(w, width, height):
         if height == 0: height = 1
         glViewport(0, 0, width, height)
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
+        glMatrixMode(GL_PROJECTION); glLoadIdentity()
         gluPerspective(45, width/height, 0.1, 300.0)
         glMatrixMode(GL_MODELVIEW)
-
     glfw.set_framebuffer_size_callback(win, on_resize)
 
     def on_key(w,key,sc,act,mod):
