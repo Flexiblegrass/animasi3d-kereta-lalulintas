@@ -202,12 +202,46 @@ def draw_pos_jaga():
         box(fx1,fy,(fz0+fz1)/2,0.06,0.06,lz,*pc)
     box(fx0-0.03,0.45,pz,0.05,0.60,0.55,0.45,0.30,0.14)
 
+def draw_rumah_indo(x, z, rot, warna_tembok):
+    """Rumah khas Indonesia dengan atap genteng prisma."""
+    glPushMatrix()
+    glTranslatef(x, 0, z)
+    glRotatef(rot, 0, 1, 0)
+    # Tembok Utama
+    box(0, 1.0, 0, 3.5, 2.0, 3.5, *warna_tembok)
+    # Pintu (Coklat)
+    box(0, 0.7, 1.76, 0.7, 1.4, 0.05, 0.4, 0.2, 0.1)
+    # Jendela
+    box(1.0, 1.0, 1.76, 0.6, 0.6, 0.05, 0.8, 0.9, 1.0)
+    # Atap Genteng (Oranye/Coklat)
+    draw_prisma_atap(0, 2.0, 0, 4.2, 1.2, 4.2, 0.6, 0.2, 0.1)
+    glPopMatrix()
+
+def draw_indomaret(x, z, rot):
+    """Gedung retail biru-merah-kuning khas Indonesia."""
+    glPushMatrix()
+    glTranslatef(x, 0, z)
+    glRotatef(rot, 0, 1, 0)
+    # Bangunan Utama (Putih)
+    box(0, 1.5, 0, 6.0, 3.0, 4.0, 0.95, 0.95, 0.95)
+    # List Warna Indomaret di atas (Biru, Merah, Kuning)
+    box(0, 2.8, 2.02, 6.0, 0.4, 0.05, 0.0, 0.3, 0.7) # Biru
+    box(-2.0, 2.8, 2.03, 1.0, 0.3, 0.05, 0.9, 0.1, 0.1) # Merah
+    # Pintu Kaca Besar
+    box(0, 1.0, 2.01, 2.5, 2.0, 0.05, 0.7, 0.85, 0.95)
+    # Papan Iklan depan (Neon box)
+    tiang_vertikal(2.5, 0, 3.0, 0.1, 4.0, 6, 0.3, 0.3, 0.3)
+    box(2.5, 4.0, 3.0, 1.5, 0.8, 0.2, 0.0, 0.3, 0.7) # Background biru neon box
+    glPopMatrix()
+
 def draw_portal(sudut, merah):
     draw_satu_palang(-4.5,-2.5, sudut, arah=+1)
     draw_satu_palang( 4.5, 2.5, sudut, arah=-1)
     draw_lampu( 4.5,-3.5, merah, arah_z=-1)
     draw_lampu(-4.5, 3.5, merah, arah_z=+1)
     draw_pos_jaga()
+
+
 
 # ═══════════════════════════════════════════════
 #  KERETA
@@ -261,11 +295,19 @@ WARNA = [
 ]
 
 def draw_roda_k(x, y, z, r=0.28):
-    glPushMatrix(); glTranslatef(x,y,z); glRotatef(90,1,0,0)
-    glColor3f(0.12,0.12,0.12)
-    q=gluNewQuadric(); gluCylinder(q,r,r,0.15,10,1)
-    gluDisk(q,0,r,10,1); glTranslatef(0,0,0.15); gluDisk(q,0,r,10,1)
-    gluDeleteQuadric(q); glPopMatrix()
+    glPushMatrix()
+    glTranslatef(x, y, z)
+    # Rotasi diubah agar silinder berdiri tegak (vertikal) menghadap samping
+    glRotatef(90, 0, 1, 0) 
+    glColor3f(0.12, 0.12, 0.12)
+    q = gluNewQuadric()
+    gluCylinder(q, r, r, 0.15, 15, 1)
+    # Tutup roda
+    gluDisk(q, 0, r, 15, 1)
+    glTranslatef(0, 0, 0.15)
+    gluDisk(q, 0, r, 15, 1)
+    gluDeleteQuadric(q)
+    glPopMatrix()
 
 def draw_mobil(x, z, wi=0):
     r,g,b = WARNA[wi % len(WARNA)]
