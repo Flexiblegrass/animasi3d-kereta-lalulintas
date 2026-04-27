@@ -98,6 +98,62 @@ def draw_jalan():
     for zi in [-22,-16,-11,-7, 7,11,16,22]:
         draw_pohon(-6.0, zi); draw_pohon(6.0, zi)
 
+
+def draw_jalan_cabang():
+    """
+    Jalan cabang horizontal (sumbu X) di sisi utara (z=-28) dan selatan (z=+28).
+    Memberi kesan ada persimpangan / interchange di ujung jalan utama.
+    """
+    aspal = (0.20, 0.20, 0.22)
+    bahu  = (0.48, 0.46, 0.44)
+    marka = (0.9,  0.9,  0.9 )
+
+    for zc in (-28.0, 28.0):
+        # Badan jalan cabang (sumbu X, lebar 6, panjang 60)
+        box(0, 0.03, zc, 60, 0.06, 6.0, *aspal)
+        # Bahu jalan / shoulder
+        box(0, 0.025, zc-3.2, 60, 0.04, 0.6, *bahu)
+        box(0, 0.025, zc+3.2, 60, 0.04, 0.6, *bahu)
+        # Marka tengah putus-putus
+        for xi in range(-14, 15):
+            xi2 = xi * 2.2
+            box(xi2, 0.07, zc, 0.15, 0.01, 1.0, *marka)
+        # Marka tepi solid
+        box(0, 0.065, zc-2.6, 60, 0.01, 0.12, *marka)
+        box(0, 0.065, zc+2.6, 60, 0.01, 0.12, *marka)
+
+        # Trotoar sisi jalan cabang
+        trot = (0.68, 0.66, 0.63)
+        box(0, 0.11, zc-4.0, 60, 0.22, 2.0, *trot)
+        box(0, 0.11, zc+4.0, 60, 0.22, 2.0, *trot)
+
+        # Pohon di pinggir jalan cabang (tiap 4 unit)
+        for xi in range(-13, 14, 4):
+            if abs(xi) < 5: continue   # jangan tumbuh di persimpangan
+            draw_pohon(xi, zc - 5.5)
+            draw_pohon(xi, zc + 5.5)
+
+    # ── Jalan penghubung / on-ramp kiri (x=-20, menyambung jalan utama ke cabang) ──
+    for xc in (-20.0, 20.0):
+        # Ramp vertikal (sumbu Z) menghubungkan jalan utama ke jalan cabang
+        box(xc, 0.03, 0, 4.0, 0.06, 56, *aspal)
+        # Marka tepi ramp
+        box(xc-1.8, 0.065, 0, 0.12, 0.01, 56, *marka)
+        box(xc+1.8, 0.065, 0, 0.12, 0.01, 56, *marka)
+        # Marka tengah putus-putus ramp
+        for zi in range(-13, 14):
+            zi2 = zi * 2.0
+            if abs(zi2) < 3: continue
+            box(xc, 0.07, zi2, 0.12, 0.01, 1.0, *marka)
+        # Trotoar ramp
+        box(xc-2.8, 0.11, 0, 1.2, 0.22, 56, *trot)
+        box(xc+2.8, 0.11, 0, 1.2, 0.22, 56, *trot)
+        # Pohon di ramp
+        for zi in range(-12, 13, 5):
+            if abs(zi) < 4: continue
+            draw_pohon(xc - 4.0, zi)
+            draw_pohon(xc + 4.0, zi)
+
 def draw_rel():
     for i in range(-27,28):
         box(i*1.5, 0.05, 0, 1.2,0.12,1.8, 0.40,0.25,0.10)
@@ -240,7 +296,7 @@ def draw_bangunan():
     # Rumah-rumah di sepanjang jalur kiri
     draw_rumah_indo(-10, -18, 90,  (0.90, 0.85, 0.75))
     draw_rumah_indo(-10, -10, 90,  (0.80, 0.70, 0.60))
-    draw_rumah_indo(-10,  -2, 90,  (0.75, 0.80, 0.70))
+    draw_rumah_indo(-10,  -6, 90,  (0.75, 0.80, 0.70))
     draw_rumah_indo(-10,   8, 90,  (0.88, 0.78, 0.65))
     draw_rumah_indo(-10,  16, 90,  (0.70, 0.75, 0.80))
     draw_rumah_indo(-10,  24, 90,  (0.85, 0.72, 0.68))
@@ -252,7 +308,7 @@ def draw_bangunan():
     # ── Sisi kanan jalan (x positif) ─────────────────────────
     draw_rumah_indo(10, -20, -90, (0.82, 0.76, 0.65))
     draw_rumah_indo(10,  -8, -90, (0.78, 0.82, 0.72))
-    draw_rumah_indo(10,   2, -90, (0.88, 0.80, 0.68))
+    draw_rumah_indo(10,   6, -90, (0.88, 0.80, 0.68))
     draw_rumah_indo(10,  12, -90, (0.72, 0.78, 0.85))
     draw_rumah_indo(10,  22, -90, (0.80, 0.70, 0.72))
 
@@ -263,16 +319,51 @@ def draw_bangunan():
     # ── Belakang rel (z negatif, sisi jauh) ──────────────────
     draw_rumah_indo(-18, -25, 0,  (0.85, 0.80, 0.70))
     draw_rumah_indo( -8, -25, 0,  (0.75, 0.82, 0.68))
-    draw_rumah_indo(  2, -25, 0,  (0.90, 0.75, 0.65))
+    draw_rumah_indo(  8, -25, 0,  (0.90, 0.75, 0.65))
     draw_rumah_indo( 12, -25, 0,  (0.80, 0.85, 0.72))
     draw_indomaret(  20, -25, 0)
 
     # ── Depan rel (z positif, sisi dekat kamera default) ─────
     draw_rumah_indo(-18,  25, 180, (0.88, 0.78, 0.70))
     draw_rumah_indo( -8,  25, 180, (0.78, 0.80, 0.75))
-    draw_rumah_indo(  2,  25, 180, (0.82, 0.72, 0.68))
+    draw_rumah_indo(  8,  25, 180, (0.82, 0.72, 0.68))
     draw_rumah_indo( 12,  25, 180, (0.76, 0.82, 0.78))
     draw_indomaret( 20,  25, 180)
+
+def draw_zebra_dan_trotoar():
+    """Zebra crossing, stop line, dan trotoar di kanan-kiri jalan."""
+
+    # ── Trotoar (sidewalk) kanan & kiri ──────────────────────────────────
+    # Permukaan trotoar sedikit lebih tinggi dari jalan (y ≈ 0.12)
+    trotoar_col = (0.68, 0.66, 0.63)
+    kerb_col    = (0.50, 0.48, 0.46)
+    for sx in (5.0, -5.0):
+        box(sx, 0.11,  0, 2.0, 0.22, 56, *trotoar_col)   # permukaan
+        # Kanstin / kerb pemisah jalan-trotoar
+        box(sx * 0.82, 0.06, 0, 0.20, 0.12, 56, *kerb_col)
+    # Ubin trotoar (garis melintang setiap 1.5 unit, warna kontras ringan)
+    for sz in range(-27, 28, 2):
+        box( 5.0, 0.225, sz, 2.0, 0.005, 0.05, 0.55, 0.53, 0.51)
+        box(-5.0, 0.225, sz, 2.0, 0.005, 0.05, 0.55, 0.53, 0.51)
+
+    # ── Garis berhenti (stop line) sebelum palang ────────────────────────
+    # Jalur dari -z (arah+1): stop line di z ≈ -4.5
+    box(0, 0.055, -4.5, 8.0, 0.02, 0.20, 0.92, 0.92, 0.92)
+    # Jalur dari +z (arah-1): stop line di z ≈ +4.5
+    box(0, 0.055,  4.5, 8.0, 0.02, 0.20, 0.92, 0.92, 0.92)
+
+    # ── Zebra crossing ────────────────────────────────────────────────────
+    lebar   = 0.50   # lebar satu garis (arah Z)
+    celah   = 0.35   # celah antar garis
+    n       = 6      # jumlah garis per zebra
+    total_z = n * lebar + (n - 1) * celah   # ~4.25 unit
+    # Letakkan zebra di z = ±7.0
+    for zc in (7.0, -7.0):
+        z0 = zc - total_z / 2
+        for i in range(n):
+            zs = z0 + i * (lebar + celah) + lebar / 2
+            box(0, 0.055, zs, 7.4, 0.02, lebar, 0.93, 0.93, 0.93)
+
 
 def draw_portal(sudut, merah):
     draw_satu_palang(-4.5,-2.5, sudut, arah=+1)
@@ -280,7 +371,7 @@ def draw_portal(sudut, merah):
     draw_lampu( 4.5,-3.5, merah, arah_z=-1)
     draw_lampu(-4.5, 3.5, merah, arah_z=+1)
     draw_pos_jaga()
-    
+
 
 
 
@@ -412,34 +503,65 @@ class Kendaraan:
         self.speed = 3.8 if tipe == 'motor' else 3.2
         self.berhenti = False      # state eksplisit
 
-    def update(self, dt, palang_tutup, depan_z=None):
+    def update(self, dt, palang_tutup, depan_z=None, pejalan_list=None):
         """Update posisi kendaraan dengan logika berhenti."""
-        jarak_aman   = 2.5 if self.tipe == 'motor' else 3.5
-        panjang_body = 1.2 if self.tipe == 'motor' else 1.8
+        jarak_aman   = 3.5 if self.tipe == 'motor' else 4.5
+        panjang_body = 1.2 if self.tipe == 'motor' else 2.2
 
-        # Tentukan batas berhenti sebelum rel
-        batas_berhenti = 5.5 * self.arah
+        # Cek apakah ada pejalan kaki yang benar-benar menghalangi lajur kendaraan ini.
+        # Pejalan kaki bergerak dari x=-4.2 ke x=+4.5 melintasi badan jalan (x ≈ -4..+4).
+        # Kendaraan jalur kiri x=-1.5, jalur kanan x=+1.5.
+        # Hanya blocking jika:
+        #   1. Pejalan kaki sudah masuk badan jalan (x > -3.5)
+        #   2. Zebra crossing-nya ada di depan kendaraan (belum dilewati)
+        ada_penyebrang = False
+        if pejalan_list:
+            for pk in pejalan_list:
+                if not pk.aktif:
+                    continue
+                # Pejalan kaki hanya blocking jika sudah masuk badan jalan
+                if pk.x < -3.5:
+                    continue
+                zc = pk.zc
+                # Zebra harus ada di depan kendaraan (belum dilewati)
+                if self.arah == 1:
+                    zebra_di_depan = (self.z < zc + 2.5) and (self.z > zc - 14.0)
+                else:
+                    zebra_di_depan = (self.z > zc - 2.5) and (self.z < zc + 14.0)
+                if zebra_di_depan:
+                    ada_penyebrang = True
+                    break
 
-        # Cek apakah kendaraan sudah melewati palang
+        # Berhenti jika palang tutup ATAU ada pejalan kaki menyebrang
+        harus_berhenti = palang_tutup or ada_penyebrang
+
+        STOP_LINE = 9.5
+        batas_berhenti = -STOP_LINE * self.arah
+
         sudah_lewat = (
             (self.arah ==  1 and self.z >= batas_berhenti) or
             (self.arah == -1 and self.z <= batas_berhenti)
         )
 
-        # Logika berhenti di palang
-        if palang_tutup and not sudah_lewat:
-            # Hitung posisi berhenti: rapat di belakang kendaraan depan,
-            # atau tepat di batas palang kalau tidak ada kendaraan depan
-            if depan_z is not None:
-                posisi_berhenti = depan_z - self.arah * panjang_body
-            else:
-                posisi_berhenti = batas_berhenti - self.arah * panjang_body
+        if harus_berhenti and not sudah_lewat:
+            # Posisi berhenti terdepan: tepat sebelum zebra crossing
+            default_stop = batas_berhenti - self.arah * panjang_body * 0.5
 
-            # Gerak maju kalau masih belum sampai posisi berhenti
+            if depan_z is not None:
+                # Berhenti di belakang kendaraan di depan, dengan jarak aman
+                posisi_berhenti = depan_z - self.arah * jarak_aman
+                # Clamp: tidak boleh maju melewati stop line
+                if self.arah == 1:
+                    posisi_berhenti = min(posisi_berhenti, default_stop)
+                else:
+                    posisi_berhenti = max(posisi_berhenti, default_stop)
+            else:
+                posisi_berhenti = default_stop
+
+            # Gerak perlahan menuju posisi berhenti
             selisih = (posisi_berhenti - self.z) * self.arah
-            if selisih > 0.1:
+            if selisih > 0.05:
                 self.z += self.arah * self.speed * dt
-                # Jangan lewati posisi berhenti
                 if (self.arah == 1  and self.z > posisi_berhenti) or \
                    (self.arah == -1 and self.z < posisi_berhenti):
                     self.z = posisi_berhenti
@@ -448,7 +570,7 @@ class Kendaraan:
 
         self.berhenti = False
 
-        # Logika jaga jarak antar kendaraan
+        # Jaga jarak antar kendaraan saat berjalan
         if depan_z is not None:
             jarak = (depan_z - self.z) * self.arah
             if jarak < jarak_aman:
@@ -481,6 +603,117 @@ class Kendaraan:
         return 0.0 if self.arah == 1 else 180.0
 
 
+def draw_pejalan_kaki(x, z, phase, ukuran=1.0):
+    """
+    Gambar pejalan kaki sederhana (silhouette 3D).
+    phase = 0..1 untuk animasi langkah kaki.
+    """
+    s = ukuran
+    swing = math.sin(phase * math.pi * 2) * 0.18 * s
+
+    glPushMatrix()
+    glTranslatef(x, 0, z)
+
+    # Badan
+    box(0, 0.7*s, 0, 0.22*s, 0.40*s, 0.16*s, 0.25, 0.40, 0.70)
+    # Kepala
+    bola(0, 1.02*s, 0, 0.12*s, cr=0.88, cg=0.72, cb=0.55)
+
+    # Kaki kiri
+    glPushMatrix()
+    glTranslatef(-0.06*s, 0.42*s, 0)
+    glRotatef(swing * 80, 1, 0, 0)
+    box(0, -0.18*s, 0, 0.10*s, 0.35*s, 0.10*s, 0.15, 0.15, 0.35)
+    glPopMatrix()
+
+    # Kaki kanan
+    glPushMatrix()
+    glTranslatef(0.06*s, 0.42*s, 0)
+    glRotatef(-swing * 80, 1, 0, 0)
+    box(0, -0.18*s, 0, 0.10*s, 0.35*s, 0.10*s, 0.15, 0.15, 0.35)
+    glPopMatrix()
+
+    # Tangan kiri
+    glPushMatrix()
+    glTranslatef(-0.16*s, 0.82*s, 0)
+    glRotatef(-swing * 60, 1, 0, 0)
+    box(0, -0.13*s, 0, 0.08*s, 0.26*s, 0.08*s, 0.25, 0.40, 0.70)
+    glPopMatrix()
+
+    # Tangan kanan
+    glPushMatrix()
+    glTranslatef(0.16*s, 0.82*s, 0)
+    glRotatef(swing * 60, 1, 0, 0)
+    box(0, -0.13*s, 0, 0.08*s, 0.26*s, 0.08*s, 0.25, 0.40, 0.70)
+    glPopMatrix()
+
+    glPopMatrix()
+
+
+class PejalanKaki:
+    """
+    Pejalan kaki yang menyebrang saat lampu merah untuk kendaraan (zebra cross).
+    Menyebrang dari pinggir jalan (x=±4) ke sisi lain.
+    """
+    WARNA_BAJU = [
+        (0.8, 0.1, 0.1), (0.1, 0.5, 0.8), (0.1, 0.7, 0.2),
+        (0.8, 0.6, 0.1), (0.5, 0.1, 0.7), (0.9, 0.4, 0.2),
+    ]
+
+    def __init__(self, idx, zc):
+        """
+        idx  : nomor urut (0..N-1) untuk offset posisi Z
+        zc   : z-center zebra crossing (±7.0)
+        """
+        self.zc     = zc            # z tengah zebra
+        self.x      = -4.0          # mulai dari trotoar kiri
+        self.speed  = 1.0 + (idx % 3) * 0.25
+        self.phase  = idx * 0.33    # fase langkah (0..1)
+        self.ukuran = 0.85 + (idx % 3) * 0.08
+        # Offset Z dalam zebra agar tidak tumpuk
+        self.z_off  = (idx - 1) * 0.55
+        self.warna_idx = idx % len(self.WARNA_BAJU)
+        self.aktif  = False         # aktif = sedang menyebrang
+        self.sudah_selesai = False  # sudah nyebrang di siklus ini
+        self._reset()
+
+    def _reset(self):
+        self.x = -4.2
+        self.aktif = False
+        self.sudah_selesai = True   # tunggu lampu hijau dulu sebelum boleh nyebrang lagi
+
+    def update(self, dt, lampu_merah):
+        """Pejalan kaki nyebrang sekali per siklus merah, lalu berhenti."""
+        # Jika fase bukan boleh_nyebrang lagi (palang mulai buka), paksa berhenti
+        if not lampu_merah:
+            if self.aktif:
+                self._reset()   # masuk trotoar, beri jalan ke kendaraan
+            self.sudah_selesai = False  # siap untuk siklus berikutnya
+            return
+
+        # Mulai nyebrang hanya jika belum nyebrang di siklus ini
+        if not self.aktif and not self.sudah_selesai:
+            self.aktif = True
+            self.x = -4.2
+
+        if self.aktif:
+            self.x += self.speed * dt
+            self.phase = (self.phase + dt * self.speed * 1.8) % 1.0
+            if self.x > 4.5:
+                self._reset()   # selesai satu kali, tidak loop lagi
+
+    def draw(self):
+        if not self.aktif:
+            return
+        # Putar 90° agar menghadap arah menyebrang (sumbu X)
+        bj = self.WARNA_BAJU[self.warna_idx]
+        glPushMatrix()
+        glTranslatef(self.x, 0, self.zc + self.z_off)
+        glRotatef(90, 0, 1, 0)   # hadap ke +X (arah menyebrang)
+        draw_pejalan_kaki(0, 0, self.phase, self.ukuran)
+        glPopMatrix()
+
+
 def buat_kendaraan():
     """Buat daftar kendaraan (mobil + motor) di kedua jalur."""
     kd = []
@@ -500,6 +733,70 @@ def buat_kendaraan():
         kd.append(Kendaraan(z, 1.5,t,w))
     return kd
 
+
+def buat_pejalan_kaki():
+    """Buat beberapa pejalan kaki di kedua zebra crossing."""
+    pejalan = []
+    # Zebra di z=+7.0 (sisi utara)
+    for i in range(4):
+        pejalan.append(PejalanKaki(i, 7.0))
+    # Zebra di z=-7.0 (sisi selatan)
+    for i in range(4):
+        pk = PejalanKaki(i, -7.0)
+        pk.speed *= -1 if i % 2 == 0 else 1  # variasi arah
+        pejalan.append(pk)
+    return pejalan
+
+
+
+class KendaraanCabang:
+    """Kendaraan di jalan cabang (bergerak di sumbu X, bukan Z)."""
+    def __init__(self, x, z_jalur, tipe, warna, arah_x):
+        self.x     = float(x)
+        self.z     = float(z_jalur)   # z tetap (di jalan cabang)
+        self.tipe  = tipe
+        self.warna = warna
+        self.arah  = arah_x           # +1 atau -1 di sumbu X
+        self.speed = 3.5 if tipe == 'mobil' else 4.2
+
+    def update(self, dt):
+        self.x += self.arah * self.speed * dt
+        # Wrap-around di sumbu X
+        if self.x >  32: self.x = -32
+        if self.x < -32: self.x =  32
+
+    def draw(self):
+        glPushMatrix()
+        glTranslatef(self.x, 0, self.z)
+        # Kendaraan cabang menghadap sumbu X → rotate 90°
+        if self.arah == 1:
+            glRotatef(-90, 0, 1, 0)
+        else:
+            glRotatef(90, 0, 1, 0)
+        if self.tipe == 'mobil':
+            draw_mobil(0, 0, self.warna)
+        else:
+            draw_motor_obj(0, 0, self.warna)
+        glPopMatrix()
+
+
+def buat_kendaraan_cabang():
+    kd = []
+    # Jalan cabang z=-28 (utara): jalur kiri z=-27 arah+X, jalur kanan z=-29 arah-X
+    specs_utara_kiri  = [(-25,'mobil',0),(-10,'motor',2),(5,'mobil',4),(20,'mobil',1)]
+    specs_utara_kanan = [(25,'mobil',5),(10,'motor',3),(-5,'mobil',2),(-20,'mobil',6)]
+    for x,t,w in specs_utara_kiri:
+        kd.append(KendaraanCabang(x, -27.5, t, w, +1))
+    for x,t,w in specs_utara_kanan:
+        kd.append(KendaraanCabang(x, -28.5, t, w, -1))
+    # Jalan cabang z=+28 (selatan): jalur kiri z=+27.5 arah+X, jalur kanan z=+28.5 arah-X
+    specs_sel_kiri  = [(15,'mobil',1),(-5,'motor',3),(-20,'mobil',5),(28,'mobil',0)]
+    specs_sel_kanan = [(-15,'mobil',2),(5,'motor',4),(22,'mobil',6),(-28,'mobil',3)]
+    for x,t,w in specs_sel_kiri:
+        kd.append(KendaraanCabang(x, 27.5, t, w, +1))
+    for x,t,w in specs_sel_kanan:
+        kd.append(KendaraanCabang(x, 28.5, t, w, -1))
+    return kd
 
 # ═══════════════════════════════════════════════
 #  SISTEM KAMERA
@@ -755,16 +1052,18 @@ class SimState:
         self.ftimer += dt
 
         if self.fase == FASE_IDLE:
-            self.merah   = False
-            self.palang  = 90.0
+            self.merah    = False
+            self.palang   = 90.0
             self.kereta_x = 55.0
-            if self.ftimer > 5.0:
+            if self.ftimer > 6.0:   # idle 6 detik, kendaraan jalan bebas
                 self.fase = FASE_TUTUP; self.ftimer = 0.0
 
         elif self.fase == FASE_TUTUP:
+            # Lampu merah nyala DULUAN saat palang mulai tutup
+            # → kendaraan berhenti di stop line sebelum palang benar-benar nutup
             self.merah  = True
-            self.palang = lerp(90.0, 0.0, self.ftimer / 2.5)
-            if self.ftimer > 2.5:
+            self.palang = lerp(90.0, 0.0, self.ftimer / 4.0)  # 4 detik tutup (lebih lambat)
+            if self.ftimer > 4.0:
                 self.fase = FASE_KERETA; self.ftimer = 0.0; self.palang = 0.0
 
         elif self.fase == FASE_KERETA:
@@ -775,10 +1074,10 @@ class SimState:
                 self.fase = FASE_BUKA; self.ftimer = 0.0
 
         elif self.fase == FASE_BUKA:
-            self.merah  = True
-            self.palang = lerp(0.0, 90.0, self.ftimer / 2.0)
+            self.merah  = True   # tetap merah sampai palang benar-benar terbuka
+            self.palang = lerp(0.0, 90.0, self.ftimer / 4.0)  # 4 detik buka (lebih lambat)
             self.kereta_x -= 14.0 * dt
-            if self.ftimer > 2.0:
+            if self.ftimer > 4.0:
                 self.fase = FASE_IDLE; self.ftimer = 0.0
                 self.merah = False; self.palang = 90.0; self.kereta_x = 55.0
 
@@ -817,6 +1116,8 @@ def main():
     sim = SimState()
     cam = CameraSystem()
     kendaraan = buat_kendaraan()
+    pejalan   = buat_pejalan_kaki()
+    kend_cabang = buat_kendaraan_cabang()
 
     # ── Callback resize ───────────────────────
     def on_resize(w, width, height):
@@ -881,13 +1182,22 @@ def main():
         # ── Update state ──────────────────────
         sim.update(dt)
 
-        # Update kendaraan
-        jalur_kiri  = sorted([k for k in kendaraan if k.x < 0], key=lambda k: -k.z)
-        jalur_kanan = sorted([k for k in kendaraan if k.x > 0], key=lambda k:  k.z)
+        # Update kendaraan cabang
+        for kc in kend_cabang:
+            kc.update(dt)
+
+        # Update pejalan kaki - hanya nyebrang saat fase KERETA (palang tutup sempurna)
+        boleh_nyebrang = (sim.fase == FASE_KERETA)
+        for pk in pejalan:
+            pk.update(dt, boleh_nyebrang)
+
+        # Update kendaraan - urutkan berdasarkan posisi terdepan per jalur
+        jalur_kiri  = sorted([k for k in kendaraan if k.x < 0], key=lambda k:  k.z)  # arah+1 → z terbesar duluan
+        jalur_kanan = sorted([k for k in kendaraan if k.x > 0], key=lambda k: -k.z)  # arah-1 → z terkecil duluan
         for jalur in (jalur_kiri, jalur_kanan):
             for i, k in enumerate(jalur):
-                depan = jalur[i-1] if i > 0 else None
-                k.update(dt, sim.palang_tutup, depan.z if depan else None)
+                depan = jalur[i+1] if i < len(jalur)-1 else None
+                k.update(dt, sim.palang_tutup, depan.z if depan else None, pejalan_list=pejalan)
 
         # Update title bar
         title_timer += dt
@@ -904,13 +1214,27 @@ def main():
         cam.apply(kendaraan)
 
         draw_jalan()
+        draw_jalan_cabang()
+        draw_zebra_dan_trotoar()
         draw_rel()
         draw_portal(sim.palang, sim.merah)
         draw_bangunan()
-        for k in kendaraan:
+        # Driver mode: skip menggambar kendaraan yg kamera ada di dalamnya
+        driver_idx = cam._driver_idx % len(kendaraan) if kendaraan else -1
+        for i, k in enumerate(kendaraan):
+            if cam.mode == CAM_DRIVER and i == driver_idx:
+                continue
             k.draw()
         if sim.fase in (FASE_TUTUP, FASE_KERETA, FASE_BUKA):
             draw_kereta(sim.kereta_x)
+
+        # Gambar kendaraan cabang
+        for kc in kend_cabang:
+            kc.draw()
+
+        # Gambar pejalan kaki
+        for pk in pejalan:
+            pk.draw()
 
         glfw.swap_buffers(win)
 
