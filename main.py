@@ -352,17 +352,17 @@ def draw_zebra_dan_trotoar():
     # Jalur dari +z (arah-1): stop line di z ≈ +4.5
     box(0, 0.055,  4.5, 8.0, 0.02, 0.20, 0.92, 0.92, 0.92)
 
-    # ── Zebra crossing ────────────────────────────────────────────────────
-    lebar   = 0.50   # lebar satu garis (arah Z)
+   # ── Zebra crossing ────────────────────────────────────────────────────
+    lebar   = 0.50   # lebar satu garis (arah X)
     celah   = 0.35   # celah antar garis
     n       = 6      # jumlah garis per zebra
-    total_z = n * lebar + (n - 1) * celah   # ~4.25 unit
+    total_x = n * lebar + (n - 1) * celah
     # Letakkan zebra di z = ±7.0
     for zc in (7.0, -7.0):
-        z0 = zc - total_z / 2
+        x0 = -total_x / 2
         for i in range(n):
-            zs = z0 + i * (lebar + celah) + lebar / 2
-            box(0, 0.055, zs, 7.4, 0.02, lebar, 0.93, 0.93, 0.93)
+            xs = x0 + i * (lebar + celah) + lebar / 2
+            box(xs, 0.055, zc, lebar, 0.02, 6.0, 0.93, 0.93, 0.93)
 
 
 def draw_portal(sudut, merah):
@@ -1098,6 +1098,97 @@ def update_title(win, sim, cam):
              f"  [1/2/3]=Kamera  [TAB/N/P]=Pilih Kendaraan  [SPACE]=Pause  [F/S]=Speed")
     glfw.set_window_title(win, title)
 
+def draw_tombol_ui(win, sim):
+    """Gambar tombol pause/speed di pojok kiri bawah pakai overlay 2D."""
+    w, h = glfw.get_framebuffer_size(win)
+
+    # Simpan state OpenGL
+    glDisable(GL_LIGHTING)
+    glDisable(GL_DEPTH_TEST)
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix(); glLoadIdentity()
+    glOrtho(0, w, 0, h, -1, 1)
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix(); glLoadIdentity()
+
+    # ── Background panel ──
+    px, py = 12, 12   # pojok kiri bawah
+    bw, bh = 160, 50  # ukuran panel
+
+    glColor4f(0, 0, 0, 0.45)
+    glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    glBegin(GL_QUADS)
+    glVertex2f(px,      py)
+    glVertex2f(px+bw,   py)
+    glVertex2f(px+bw,   py+bh)
+    glVertex2f(px,      py+bh)
+    glEnd()
+    glDisable(GL_BLEND)
+
+    # ── Tombol Pause (kotak kiri) ──
+    # Warna: biru kalau jalan, merah kalau pause
+    if sim.paused:
+        glColor3f(0.9, 0.2, 0.2)
+    else:
+        glColor3f(0.2, 0.55, 0.9)
+    glBegin(GL_QUADS)
+    glVertex2f(px+8,  py+8)
+    glVertex2f(px+48, py+8)
+    glVertex2f(px+48, py+42)
+    glVertex2f(px+8,  py+42)
+    glEnd()
+
+    # Ikon pause (2 garis) atau play (segitiga)
+    glColor3f(1, 1, 1)
+    if sim.paused:
+        # Segitiga play ▶
+        glBegin(GL_TRIANGLES)
+        glVertex2f(px+18, py+12)
+        glVertex2f(px+18, py+38)
+        glVertex2f(px+42, py+25)
+        glEnd()
+    else:
+        # 2 garis pause ⏸
+        glBegin(GL_QUADS)
+        glVertex2f(px+16, py+12); glVertex2f(px+24, py+12)
+        glVertex2f(px+24, py+38); glVertex2f(px+16, py+38)
+        glVertex2f(px+30, py+12); glVertex2f(px+38, py+12)
+        glVertex2f(px+38, py+38); glVertex2f(px+30, py+38)
+        glEnd()
+
+    # ── Tombol Slow ◀◀ ──
+    glColor3f(0.3, 0.3, 0.3)
+    glBegin(GL_QUADS)
+    glVertex2f(px+58,  py+8)
+    glVertex2f(px+98,  py+8)
+    glVertex2f(px+98,  py+42)
+    glVertex2f(px+58,  py+42)
+    glEnd()
+    glColor3f(1, 1, 1)
+    glBegin(GL_TRIANGLES)
+    glVertex2f(px+92, py+12); glVertex2f(px+70, py+25); glVertex2f(px+92, py+38)
+    glVertex2f(px+80, py+12); glVertex2f(px+62, py+25); glVertex2f(px+80, py+38)
+    glEnd()
+
+    # ── Tombol Fast ▶▶ ──
+    glColor3f(0.3, 0.3, 0.3)
+    glBegin(GL_QUADS)
+    glVertex2f(px+108, py+8)
+    glVertex2f(px+152, py+8)
+    glVertex2f(px+152, py+42)
+    glVertex2f(px+108, py+42)
+    glEnd()
+    glColor3f(1, 1, 1)
+    glBegin(GL_TRIANGLES)
+    glVertex2f(px+114, py+12); glVertex2f(px+136, py+25); glVertex2f(px+114, py+38)
+    glVertex2f(px+126, py+12); glVertex2f(px+148, py+25); glVertex2f(px+126, py+38)
+    glEnd()
+
+    # Restore state
+    glMatrixMode(GL_PROJECTION); glPopMatrix()
+    glMatrixMode(GL_MODELVIEW);  glPopMatrix()
+    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_LIGHTING)
 
 # ═══════════════════════════════════════════════
 #  MAIN
@@ -1180,24 +1271,23 @@ def main():
         glfw.poll_events()
 
         # ── Update state ──────────────────────
-        sim.update(dt)
+        adt = 0.0 if sim.paused else dt   # ← dt=0 saat pause
 
-        # Update kendaraan cabang
+        sim.update(dt)  # sim.update pakai dt asli (biar tombol tetap respons)
+
         for kc in kend_cabang:
-            kc.update(dt)
+            kc.update(adt)   # ← pakai adt
 
-        # Update pejalan kaki - hanya nyebrang saat fase KERETA (palang tutup sempurna)
         boleh_nyebrang = (sim.fase == FASE_KERETA)
         for pk in pejalan:
-            pk.update(dt, boleh_nyebrang)
+            pk.update(adt, boleh_nyebrang)   # ← pakai adt
 
-        # Update kendaraan - urutkan berdasarkan posisi terdepan per jalur
-        jalur_kiri  = sorted([k for k in kendaraan if k.x < 0], key=lambda k:  k.z)  # arah+1 → z terbesar duluan
-        jalur_kanan = sorted([k for k in kendaraan if k.x > 0], key=lambda k: -k.z)  # arah-1 → z terkecil duluan
+        jalur_kiri  = sorted([k for k in kendaraan if k.x < 0], key=lambda k:  k.z)
+        jalur_kanan = sorted([k for k in kendaraan if k.x > 0], key=lambda k: -k.z)
         for jalur in (jalur_kiri, jalur_kanan):
             for i, k in enumerate(jalur):
                 depan = jalur[i+1] if i < len(jalur)-1 else None
-                k.update(dt, sim.palang_tutup, depan.z if depan else None, pejalan_list=pejalan)
+                k.update(adt, sim.palang_tutup, depan.z if depan else None, pejalan_list=pejalan)  # ← pakai adt
 
         # Update title bar
         title_timer += dt
