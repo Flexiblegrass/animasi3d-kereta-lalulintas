@@ -91,7 +91,8 @@ def draw_jalan():
     box(0, 0.03, 0, 8.0,0.06,60,  0.20,0.20,0.22)
     for i in range(-14,15):
         zi = i * 2.0
-        if abs(zi) < 2.5: continue
+        if abs(zi) < 2.5: continue          # area rel
+        if 5.0 <= abs(zi) <= 9.0: continue  # area zebra cross (z=±7)
         box(0, 0.07, zi, 0.15,0.01,1.0, 0.9,0.9,0.9)
     box(0, 0.03,-4.5, 8.0,0.05,1.0, 0.16,0.16,0.18)
     box(0, 0.03, 4.5, 8.0,0.05,1.0, 0.16,0.16,0.18)
@@ -332,39 +333,36 @@ def draw_bangunan():
     draw_rumah_indo(10,  20.5, -90, (0.80, 0.70, 0.72))
 
 def draw_zebra_dan_trotoar():
-    """Zebra crossing, stop line, dan trotoar di kanan-kiri jalan."""
+    """Zebra crossing simetris, stop line, dan trotoar di pinggir jalan raya."""
 
-    # ── Trotoar (sidewalk) kanan & kiri ──────────────────────────────────
-    # Permukaan trotoar sedikit lebih tinggi dari jalan (y ≈ 0.12)
-    trotoar_col = (0.68, 0.66, 0.63)
-    kerb_col    = (0.50, 0.48, 0.46)
-    for sx in (5.0, -5.0):
-        box(sx, 0.11,  0, 2.0, 0.22, 56, *trotoar_col)   # permukaan
-        # Kanstin / kerb pemisah jalan-trotoar
-        box(sx * 0.82, 0.06, 0, 0.20, 0.12, 56, *kerb_col)
-    # Ubin trotoar (garis melintang setiap 1.5 unit, warna kontras ringan)
-    for sz in range(-27, 28, 2):
-        box( 5.0, 0.225, sz, 2.0, 0.005, 0.05, 0.55, 0.53, 0.51)
-        box(-5.0, 0.225, sz, 2.0, 0.005, 0.05, 0.55, 0.53, 0.51)
+    # ── Trotoar kanan & kiri jalan raya utama ───────────────────────────
+    trot = (0.68, 0.66, 0.63)
+    kerb = (0.45, 0.43, 0.41)
+    # Trotoar (lebar 1.5, sepanjang jalan, y sedikit lebih tinggi dari aspal)
+    box( 4.75, 0.12, 0, 1.5, 0.24, 60, *trot)
+    box(-4.75, 0.12, 0, 1.5, 0.24, 60, *trot)
+    # Kanstin / kerb pemisah jalan-trotoar
+    box( 4.08, 0.06, 0, 0.18, 0.14, 60, *kerb)
+    box(-4.08, 0.06, 0, 0.18, 0.14, 60, *kerb)
+    # Garis nat ubin trotoar (tiap 1.5 unit)
+    for sz in range(-29, 30, 2):
+        box( 4.75, 0.245, sz, 1.5, 0.005, 0.06, 0.55, 0.53, 0.51)
+        box(-4.75, 0.245, sz, 1.5, 0.005, 0.06, 0.55, 0.53, 0.51)
 
     # ── Garis berhenti (stop line) sebelum palang ────────────────────────
-    # Jalur dari -z (arah+1): stop line di z ≈ -4.5
     box(0, 0.055, -4.5, 8.0, 0.02, 0.20, 0.92, 0.92, 0.92)
-    # Jalur dari +z (arah-1): stop line di z ≈ +4.5
     box(0, 0.055,  4.5, 8.0, 0.02, 0.20, 0.92, 0.92, 0.92)
 
-   # ── Zebra crossing ────────────────────────────────────────────────────
-    lebar   = 0.7 # lebar satu garis (arah X)
-    celah   = 0.35   # celah antar garis
-    n       = 8      # jumlah garis per zebra
-    total_x = n * lebar + (n - 1) * celah
-    # Letakkan zebra di z = ±7.0
+    # ── Zebra crossing simetris selebar aspal saja (x: -4..+4) ──────────
+    lebar = 0.50
+    celah = 0.28
+    n     = 9
+    total = n * lebar + (n - 1) * celah
     for zc in (7.0, -7.0):
-        x0 = -total_x / 2
+        x0 = -total / 2
         for i in range(n):
             xs = x0 + i * (lebar + celah) + lebar / 2
             box(xs, 0.055, zc, lebar, 0.02, 4.0, 0.93, 0.93, 0.93)
-
 
 def draw_portal(sudut, merah):
     draw_satu_palang(-4.5,-2.5, sudut, arah=+1)
@@ -491,37 +489,48 @@ class Kendaraan:
     Satu unit kendaraan (mobil / motor).
     State berhenti diatur oleh flag 'tutup' (palang tertutup)
     dan 'depan_z' (jarak aman dari kendaraan di depannya).
+    Saat mendekati pertigaan (z≈±26), kendaraan bisa belok kanan/kiri.
     """
+    BELOK_LURUS = 0
+    BELOK_KANAN = 1   # belok ke +x (jalan cabang)
+    BELOK_KIRI  = 2   # belok ke -x (jalan cabang)
+
     def __init__(self, z, x, tipe, warna):
         self.z     = float(z)
         self.x     = float(x)
-        self.tipe  = tipe          # 'mobil' | 'motor'
+        self.tipe  = tipe
         self.warna = warna
-        self.arah  = 1 if x < 0 else -1   # x<0 → jalur kiri, bergerak ke +z
+        self.arah  = 1 if x < 0 else -1
         self.speed = 3.8 if tipe == 'motor' else 3.2
-        self.berhenti = False      # state eksplisit
+        self.berhenti = False
+        # Tentukan perilaku belok secara deterministik (1/3 belok kanan, 1/3 belok kiri)
+        import random as _rnd
+        r = _rnd.random()
+        if r < 0.33:
+            self.belok = self.BELOK_KANAN
+        elif r < 0.66:
+            self.belok = self.BELOK_KIRI
+        else:
+            self.belok = self.BELOK_LURUS
+        self._belok_aktif = False   # sedang dalam animasi belok
+        self._belok_progress = 0.0  # 0..1
+
+    def _z_pertigaan(self):
+        """Z pertigaan yang relevan untuk arah kendaraan ini."""
+        return 26.0 if self.arah == 1 else -26.0
 
     def update(self, dt, palang_tutup, depan_z=None, pejalan_list=None):
-        """Update posisi kendaraan dengan logika berhenti."""
         jarak_aman   = 3.5 if self.tipe == 'motor' else 4.5
         panjang_body = 1.2 if self.tipe == 'motor' else 2.2
 
-        # Cek apakah ada pejalan kaki yang benar-benar menghalangi lajur kendaraan ini.
-        # Pejalan kaki bergerak dari x=-4.2 ke x=+4.5 melintasi badan jalan (x ≈ -4..+4).
-        # Kendaraan jalur kiri x=-1.5, jalur kanan x=+1.5.
-        # Hanya blocking jika:
-        #   1. Pejalan kaki sudah masuk badan jalan (x > -3.5)
-        #   2. Zebra crossing-nya ada di depan kendaraan (belum dilewati)
         ada_penyebrang = False
         if pejalan_list:
             for pk in pejalan_list:
                 if not pk.aktif:
                     continue
-                # Pejalan kaki hanya blocking jika sudah masuk badan jalan
                 if pk.x < -3.5:
                     continue
                 zc = pk.zc
-                # Zebra harus ada di depan kendaraan (belum dilewati)
                 if self.arah == 1:
                     zebra_di_depan = (self.z < zc + 2.5) and (self.z > zc - 14.0)
                 else:
@@ -530,25 +539,19 @@ class Kendaraan:
                     ada_penyebrang = True
                     break
 
-        # Berhenti jika palang tutup ATAU ada pejalan kaki menyebrang
         harus_berhenti = palang_tutup or ada_penyebrang
 
         STOP_LINE = 9.5
         batas_berhenti = -STOP_LINE * self.arah
-
         sudah_lewat = (
             (self.arah ==  1 and self.z >= batas_berhenti) or
             (self.arah == -1 and self.z <= batas_berhenti)
         )
 
         if harus_berhenti and not sudah_lewat:
-            # Posisi berhenti terdepan: tepat sebelum zebra crossing
             default_stop = batas_berhenti - self.arah * panjang_body * 0.5
-
             if depan_z is not None:
-                # Berhenti di belakang kendaraan di depan, dengan jarak aman
                 posisi_berhenti = depan_z - self.arah * jarak_aman
-                # Clamp: tidak boleh maju melewati stop line
                 if self.arah == 1:
                     posisi_berhenti = min(posisi_berhenti, default_stop)
                 else:
@@ -556,7 +559,6 @@ class Kendaraan:
             else:
                 posisi_berhenti = default_stop
 
-            # Gerak perlahan menuju posisi berhenti
             selisih = (posisi_berhenti - self.z) * self.arah
             if selisih > 0.05:
                 self.z += self.arah * self.speed * dt
@@ -568,24 +570,66 @@ class Kendaraan:
 
         self.berhenti = False
 
-        # Jaga jarak antar kendaraan saat berjalan
         if depan_z is not None:
             jarak = (depan_z - self.z) * self.arah
             if jarak < jarak_aman:
                 return
 
-        # Gerak maju
+        # ── Logika belok di pertigaan ──────────────────────────────────
+        z_ptg = self._z_pertigaan()
+        dekat_pertigaan = abs(self.z - z_ptg) < 2.0
+
+        if self.belok != self.BELOK_LURUS and dekat_pertigaan:
+            self._belok_aktif = True
+
+        if self._belok_aktif:
+            self._belok_progress += dt * 1.2   # kecepatan animasi belok
+            # Gerak Z terus (melambat saat belok)
+            self.z += self.arah * self.speed * 0.5 * dt
+            # Gerak X sesuai arah belok
+            if self.belok == self.BELOK_KANAN:
+                self.x += self.speed * 0.5 * dt   # ke +x
+            else:
+                self.x -= self.speed * 0.5 * dt   # ke -x
+            # Selesai belok: reset ke jalur cabang dan lanjut lurus di X
+            if self._belok_progress >= 1.0:
+                self._belok_aktif = False
+                self._belok_progress = 0.0
+                self.belok = self.BELOK_LURUS  # setelah belok, lurus terus
+            return
+
+        # Gerak maju normal
         self.z += self.arah * self.speed * dt
 
         # Wrap-around
-        if self.z >  34: self.z = -34
-        if self.z < -34: self.z =  34
+        if self.z >  34: self.z = -34; self._reset_belok()
+        if self.z < -34: self.z =  34; self._reset_belok()
+
+    def _reset_belok(self):
+        """Saat wrap, acak ulang keputusan belok dan kembalikan x ke jalur semula."""
+        import random as _rnd
+        self.x = -1.5 if self.arah == 1 else 1.5
+        r = _rnd.random()
+        if r < 0.33:   self.belok = self.BELOK_KANAN
+        elif r < 0.66: self.belok = self.BELOK_KIRI
+        else:          self.belok = self.BELOK_LURUS
+        self._belok_aktif = False
+        self._belok_progress = 0.0
 
     def draw(self):
         glPushMatrix()
         glTranslatef(self.x, 0, self.z)
-        if self.arah == -1:
-            glRotatef(180, 0, 1, 0)
+        # Rotasi: saat belok, rotate bertahap ke arah belok
+        base_rot = 0.0 if self.arah == 1 else 180.0
+        if self._belok_aktif:
+            t = min(self._belok_progress, 1.0)
+            if self.belok == self.BELOK_KANAN:
+                extra = -90.0 * t
+            else:
+                extra = 90.0 * t
+            glRotatef(base_rot + extra, 0, 1, 0)
+        else:
+            glRotatef(base_rot, 0, 1, 0)
         if self.tipe == 'mobil':
             draw_mobil(0, 0, self.warna)
         else:
@@ -593,11 +637,9 @@ class Kendaraan:
         glPopMatrix()
 
     def world_pos(self):
-        """Kembalikan posisi dunia (x, y, z) kendaraan."""
         return (self.x, 0.0, self.z)
 
     def heading_deg(self):
-        """Arah hadap kendaraan dalam derajat (untuk kamera driver)."""
         return 0.0 if self.arah == 1 else 180.0
 
 
