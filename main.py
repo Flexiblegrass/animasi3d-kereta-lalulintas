@@ -156,11 +156,33 @@ def draw_jalan_cabang():
 
 def draw_rel():
     for i in range(-27,28):
-        box(i*1.5, 0.05, 0, 1.2,0.12,1.8, 0.40,0.25,0.10)
-    box(0,0.18,-0.7, 80,0.10,0.15, 0.6,0.6,0.65)
-    box(0,0.24,-0.7, 80,0.05,0.22, 0.7,0.7,0.75)
-    box(0,0.18, 0.7, 80,0.10,0.15, 0.6,0.6,0.65)
-    box(0,0.24, 0.7, 80,0.05,0.22, 0.7,0.7,0.75)
+        box(i*1.5, 0.22, 0, 1.2,0.12,1.8, 0.40,0.25,0.10)
+    box(0,0.35,-0.7, 80,0.10,0.15, 0.6,0.6,0.65)
+    box(0,0.41,-0.7, 80,0.05,0.22, 0.7,0.7,0.75)
+    box(0,0.35, 0.7, 80,0.10,0.15, 0.6,0.6,0.65)
+    box(0,0.41, 0.7, 80,0.05,0.22, 0.7,0.7,0.75)
+
+def draw_terowongan():
+    """Terowongan di ujung rel (z negatif) agar kereta terlihat keluar dari dalamnya."""
+    tz = -22.0   # posisi z terowongan (sesuaikan jika perlu)
+    tx = 18.0 
+
+    # Badan bukit/gundukan tanah di atas terowongan
+    box(0, 2.5, tz - 6, 12, 5.0, 12, 0.25, 0.45, 0.18)   # bukit hijau
+    box(0, 1.0, tz - 6, 14, 2.0, 14, 0.22, 0.40, 0.15)   # kaki bukit
+    
+    # Tembok kiri terowongan
+    box(-2.5, 1.5, tz, 1.0, 3.0, 2.0, 0.45, 0.40, 0.35)
+    # Tembok kanan terowongan
+    box( 2.5, 1.5, tz, 1.0, 3.0, 2.0, 0.45, 0.40, 0.35)
+    # Lengkungan atas (atap portal)
+    box(0, 3.2, tz, 6.0, 0.8, 2.0, 0.40, 0.35, 0.30)
+    # Isi gelap dalam terowongan (lubang hitam)
+    box(0, 1.5, tz - 1.0, 3.0, 3.0, 2.5, 0.05, 0.05, 0.05)
+    
+    # Detail batu-batu di portal
+    for bx in [-1.8, -0.6, 0.6, 1.8]:
+        box(bx, 3.0, tz, 1.0, 0.4, 1.8, 0.50, 0.45, 0.38)
 
 # ═══════════════════════════════════════════════
 #  PORTAL & PALANG
@@ -294,41 +316,20 @@ def draw_bangunan():
     """Tempatkan rumah dan ruko di semua sisi perlintasan."""
     # ── Sisi kiri jalan (x negatif) ──────────────────────────
     # Rumah-rumah di sepanjang jalur kiri
-    draw_rumah_indo(-10, -18, 90,  (0.90, 0.85, 0.75))
-    draw_rumah_indo(-10, -10, 90,  (0.80, 0.70, 0.60))
-    draw_rumah_indo(-10,  -6, 90,  (0.75, 0.80, 0.70))
-    draw_rumah_indo(-10,   8, 90,  (0.88, 0.78, 0.65))
-    draw_rumah_indo(-10,  16, 90,  (0.70, 0.75, 0.80))
-    draw_rumah_indo(-10,  24, 90,  (0.85, 0.72, 0.68))
+    
+    # ── Sisi kiri jalan ──
+    draw_rumah_indo(-10, -20, 90, (0.90, 0.85, 0.75))
+    draw_rumah_indo(-10, -12, 90, (0.80, 0.70, 0.60))
+    draw_rumah_indo(-10,  -5, 90, (0.75, 0.80, 0.70))
+    draw_rumah_indo(-10,   6, 90, (0.88, 0.78, 0.65))
+    draw_rumah_indo(-10,  15, 90, (0.70, 0.75, 0.80))
 
-    # Ruko di sisi kiri dekat perlintasan
-    draw_indomaret(-14,   5, 90)
-    draw_indomaret(-14, -12, 90)
-
-    # ── Sisi kanan jalan (x positif) ─────────────────────────
+    # ── Sisi kanan jalan ──
     draw_rumah_indo(10, -20, -90, (0.82, 0.76, 0.65))
     draw_rumah_indo(10,  -8, -90, (0.78, 0.82, 0.72))
-    draw_rumah_indo(10,   6, -90, (0.88, 0.80, 0.68))
-    draw_rumah_indo(10,  12, -90, (0.72, 0.78, 0.85))
-    draw_rumah_indo(10,  22, -90, (0.80, 0.70, 0.72))
-
-    # Ruko di sisi kanan
-    draw_indomaret(14,  10, -90)
-    draw_indomaret(14, -15, -90)
-
-    # ── Belakang rel (z negatif, sisi jauh) ──────────────────
-    draw_rumah_indo(-18, -25, 0,  (0.85, 0.80, 0.70))
-    draw_rumah_indo( -8, -25, 0,  (0.75, 0.82, 0.68))
-    draw_rumah_indo(  8, -25, 0,  (0.90, 0.75, 0.65))
-    draw_rumah_indo( 12, -25, 0,  (0.80, 0.85, 0.72))
-    draw_indomaret(  20, -25, 0)
-
-    # ── Depan rel (z positif, sisi dekat kamera default) ─────
-    draw_rumah_indo(-18,  25, 180, (0.88, 0.78, 0.70))
-    draw_rumah_indo( -8,  25, 180, (0.78, 0.80, 0.75))
-    draw_rumah_indo(  8,  25, 180, (0.82, 0.72, 0.68))
-    draw_rumah_indo( 12,  25, 180, (0.76, 0.82, 0.78))
-    draw_indomaret( 20,  25, 180)
+    draw_rumah_indo(10,   3.8, -90, (0.88, 0.80, 0.68))
+    draw_rumah_indo(10,  16, -90, (0.72, 0.78, 0.85))
+    draw_rumah_indo(10,  20.5, -90, (0.80, 0.70, 0.72))
 
 def draw_zebra_dan_trotoar():
     """Zebra crossing, stop line, dan trotoar di kanan-kiri jalan."""
@@ -353,16 +354,16 @@ def draw_zebra_dan_trotoar():
     box(0, 0.055,  4.5, 8.0, 0.02, 0.20, 0.92, 0.92, 0.92)
 
    # ── Zebra crossing ────────────────────────────────────────────────────
-    lebar   = 0.50   # lebar satu garis (arah X)
+    lebar   = 0.7 # lebar satu garis (arah X)
     celah   = 0.35   # celah antar garis
-    n       = 6      # jumlah garis per zebra
+    n       = 8      # jumlah garis per zebra
     total_x = n * lebar + (n - 1) * celah
     # Letakkan zebra di z = ±7.0
     for zc in (7.0, -7.0):
         x0 = -total_x / 2
         for i in range(n):
             xs = x0 + i * (lebar + celah) + lebar / 2
-            box(xs, 0.055, zc, lebar, 0.02, 6.0, 0.93, 0.93, 0.93)
+            box(xs, 0.055, zc, lebar, 0.02, 4.0, 0.93, 0.93, 0.93)
 
 
 def draw_portal(sudut, merah):
@@ -371,9 +372,6 @@ def draw_portal(sudut, merah):
     draw_lampu( 4.5,-3.5, merah, arah_z=-1)
     draw_lampu(-4.5, 3.5, merah, arah_z=+1)
     draw_pos_jaga()
-
-
-
 
 # ═══════════════════════════════════════════════
 #  KERETA
@@ -1307,6 +1305,7 @@ def main():
         draw_jalan_cabang()
         draw_zebra_dan_trotoar()
         draw_rel()
+        draw_terowongan()
         draw_portal(sim.palang, sim.merah)
         draw_bangunan()
         # Driver mode: skip menggambar kendaraan yg kamera ada di dalamnya
