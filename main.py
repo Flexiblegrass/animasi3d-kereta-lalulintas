@@ -496,13 +496,29 @@ def draw_stasiun():
 #  KERETA
 # ═══════════════════════════════════════════════
 def draw_roda_kereta(cx, cy, cz):
-    silinder(cx,cy,cz-0.7,0.08,1.4,8,0.3,0.3,0.3)
-    for oz in [-0.7,0.7]:
-        glPushMatrix(); glTranslatef(cx,cy,oz); glRotatef(90,1,0,0)
-        glColor3f(0.15,0.15,0.15)
-        q=gluNewQuadric(); gluCylinder(q,0.35,0.35,0.12,14,1)
-        gluDisk(q,0,0.35,14,1); glTranslatef(0,0,0.12)
-        gluDisk(q,0,0.35,14,1); gluDeleteQuadric(q); glPopMatrix()
+    # Axle: batang horizontal kiri-kanan (sumbu Z), tidak perlu rotate
+    glPushMatrix()
+    glTranslatef(cx, cy, cz - 0.7)
+    glColor3f(0.3, 0.3, 0.3)
+    q = gluNewQuadric()
+    gluCylinder(q, 0.08, 0.08, 1.4, 8, 1)
+    gluDeleteQuadric(q)
+    glPopMatrix()
+
+    # Roda kiri dan kanan — tegak di bidang XY
+    for oz in [-0.7, 0.7]:
+        glPushMatrix()
+        glTranslatef(cx, cy, cz + oz - 0.06)
+        # TIDAK ada glRotatef — gluCylinder ke +Z = ketebalan ban (tipis, arah Z)
+        # Lingkaran roda = disk di bidang XY → sudah benar tanpa rotate
+        glColor3f(0.15, 0.15, 0.15)
+        q = gluNewQuadric()
+        gluCylinder(q, 0.35, 0.35, 0.12, 14, 1)  # ban tipis, tegak di XY
+        gluDisk(q, 0, 0.35, 14, 1)                # sisi dalam
+        glTranslatef(0, 0, 0.12)
+        gluDisk(q, 0, 0.35, 14, 1)                # sisi luar
+        gluDeleteQuadric(q)
+        glPopMatrix()
 
 def draw_lokomotif(ox):
     glPushMatrix(); glTranslatef(ox,0,0)
@@ -530,10 +546,13 @@ def draw_gerbong(ox, r=0.15, g=0.45, b=0.70):
     glPopMatrix()
 
 def draw_kereta(px):
+    glPushMatrix()
+    glTranslatef(0, 0.35, 0)   # angkat seluruh kereta agar roda di atas rel
     glPushMatrix(); glTranslatef(px,0,0); glRotatef(180,0,1,0)
     draw_lokomotif(0); glPopMatrix()
     for i in range(4):
         draw_gerbong(px+5.8+i*5.6)
+    glPopMatrix()
 
 # ═══════════════════════════════════════════════
 #  KENDARAAN
