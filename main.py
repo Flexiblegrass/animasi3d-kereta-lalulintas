@@ -156,34 +156,35 @@ def draw_jalan_cabang():
             draw_pohon(xc + 4.0, zi)
 
 def draw_rel():
-    for i in range(-27,28):
+    for i in range(-33,34):
         box(i*1.5, 0.22, 0, 1.2,0.12,1.8, 0.40,0.25,0.10)
-    box(0,0.35,-0.7, 80,0.10,0.15, 0.6,0.6,0.65)
-    box(0,0.41,-0.7, 80,0.05,0.22, 0.7,0.7,0.75)
-    box(0,0.35, 0.7, 80,0.10,0.15, 0.6,0.6,0.65)
-    box(0,0.41, 0.7, 80,0.05,0.22, 0.7,0.7,0.75)
+    box(0,0.35,-0.7, 100,0.10,0.15, 0.6,0.6,0.65)
+    box(0,0.41,-0.7, 100,0.05,0.22, 0.7,0.7,0.75)
+    box(0,0.35, 0.7, 100,0.10,0.15, 0.6,0.6,0.65)
+    box(0,0.41, 0.7, 100,0.05,0.22, 0.7,0.7,0.75)
+    
 
 def draw_terowongan():
-    """Terowongan di ujung rel (z negatif) agar kereta terlihat keluar dari dalamnya."""
-    tz = -22.0   # posisi z terowongan (sesuaikan jika perlu)
-    tx = 18.0 
+    tx = 54.0   
+    tz = 0.0    
 
-    # Badan bukit/gundukan tanah di atas terowongan
-    box(0, 2.5, tz - 6, 12, 5.0, 12, 0.25, 0.45, 0.18)   # bukit hijau
-    box(0, 1.0, tz - 6, 14, 2.0, 14, 0.22, 0.40, 0.15)   # kaki bukit
-    
-    # Tembok kiri terowongan
-    box(-2.5, 1.5, tz, 1.0, 3.0, 2.0, 0.45, 0.40, 0.35)
-    # Tembok kanan terowongan
-    box( 2.5, 1.5, tz, 1.0, 3.0, 2.0, 0.45, 0.40, 0.35)
-    # Lengkungan atas (atap portal)
-    box(0, 3.2, tz, 6.0, 0.8, 2.0, 0.40, 0.35, 0.30)
-    # Isi gelap dalam terowongan (lubang hitam)
-    box(0, 1.5, tz - 1.0, 3.0, 3.0, 2.5, 0.05, 0.05, 0.05)
-    
-    # Detail batu-batu di portal
-    for bx in [-1.8, -0.6, 0.6, 1.8]:
-        box(bx, 3.0, tz, 1.0, 0.4, 1.8, 0.50, 0.45, 0.38)
+    # ── Gundukan bukit ──
+    box(tx + 5, 0.5, tz,  18, 8, 13.0, 0.25, 0.45, 0.18)
+    box(tx + 5, 1.5, tz,  15, 9, 11, 0.25, 0.45, 0.18)
+    box(tx + 5, 2.5, tz,  11, 10, 8, 0.25, 0.45, 0.18)
+    box(tx + 5, 3.2, tz,   8, 11, 5, 0.25, 0.45, 0.18)
+    # Terowongan di sisi X positif (arah kereta muncul)
+    tx = 50.0
+    # Tembok atas & bawah portal (sumbu Z karena kereta lewat di sumbu X)
+    box(tx, 1.5, -2.5, 2.0, 3.0, 1.0, 0.45, 0.40, 0.35)
+    box(tx, 1.5,  2.5, 2.0, 3.0, 1.0, 0.45, 0.40, 0.35)
+    # Atap portal
+    box(tx, 3.2, 0, 2.0, 0.8, 6.0, 0.40, 0.35, 0.30)
+    # Lubang gelap
+    box(tx + 1.0, 1.5, 0, 2.5, 3.0, 5.0, 0.05, 0.05, 0.05)
+    # Detail batu
+    for bz in [-1.8, -0.6, 0.6, 1.8]:
+        box(tx, 3.0, bz, 1.8, 0.4, 1.0, 0.50, 0.45, 0.38)
 
 # ═══════════════════════════════════════════════
 #  PORTAL & PALANG
