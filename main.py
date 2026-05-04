@@ -166,22 +166,27 @@ def draw_rel():
 
 def draw_terowongan():
     tx = 54.0   
-    tz = 0.0    
+    tz = 0.0 
 
-    # ── Gundukan bukit ──
-    box(tx + 5, 0.5, tz,  18, 8, 13.0, 0.25, 0.45, 0.18)
-    box(tx + 5, 1.5, tz,  15, 9, 11, 0.25, 0.45, 0.18)
-    box(tx + 5, 2.5, tz,  11, 10, 8, 0.25, 0.45, 0.18)
-    box(tx + 5, 3.2, tz,   8, 11, 5, 0.25, 0.45, 0.18)
+    # Gundukan bukit 
+    box(tx + 5, 0.5, tz,  18, 8, 13.0, 0.50, 0.48, 0.45)
+    box(tx + 5, 1.5, tz,  15, 9, 11, 0.50, 0.48, 0.45)
+    box(tx + 5, 2.5, tz,  11, 10, 8, 0.50, 0.48, 0.45)
+    box(tx + 5, 3.2, tz,   8, 11, 5, 0.50, 0.48, 0.45)
+
     # Terowongan di sisi X positif (arah kereta muncul)
     tx = 50.0
+
     # Tembok atas & bawah portal (sumbu Z karena kereta lewat di sumbu X)
-    box(tx, 1.5, -2.5, 2.0, 3.0, 1.0, 0.45, 0.40, 0.35)
-    box(tx, 1.5,  2.5, 2.0, 3.0, 1.0, 0.45, 0.40, 0.35)
+    box(tx, 1.5, -2.5, 2.0, 3.0, 1.0, 0.22, 0.22, 0.22)
+    box(tx, 1.5,  2.5, 2.0, 3.0, 1.0, 0.22, 0.22, 0.22)
+
     # Atap portal
-    box(tx, 3.2, 0, 2.0, 0.8, 6.0, 0.40, 0.35, 0.30)
+    box(tx, 3.2, 0, 2.0, 0.8, 6.0, 0.22, 0.22, 0.22)
+
     # Lubang gelap
     box(tx + 1.0, 1.5, 0, 2.5, 3.0, 5.0, 0.05, 0.05, 0.05)
+
     # Detail batu
     for bz in [-1.8, -0.6, 0.6, 1.8]:
         box(tx, 3.0, bz, 1.8, 0.4, 1.0, 0.50, 0.45, 0.38)
@@ -371,6 +376,121 @@ def draw_portal(sudut, merah):
     draw_lampu( 4.5,-3.5, merah, arah_z=-1)
     draw_lampu(-4.5, 3.5, merah, arah_z=+1)
     draw_pos_jaga()
+
+def draw_stasiun():
+    """
+    Stasiun kecil bergaya Indonesia.
+    Diposisikan di x=-45 (jauh dari sweep kereta yang max s.d. x=-30).
+    Bangunan punya depth Z yang proper sehingga tidak flat.
+    """
+    sx = -45.0   # geser lebih jauh dari rel (kereta max sweep x=-30)
+    sz =  0.0    # sejajar sumbu rel
+ 
+    # ── Pondasi / platform peron ──────────────────────────────────────────
+    # Peron memanjang di sumbu X, lebar ke arah Z (sisi penumpang)
+    box(sx, 0.20, sz,       14.0, 0.40, 5.0,  0.62, 0.58, 0.54)   # lantai peron utama
+    box(sx, 0.08, sz - 4.0, 14.0, 0.16, 2.0,  0.50, 0.47, 0.44)   # bahu/tepi peron
+ 
+    # ── Bangunan utama stasiun (sekarang punya depth Z = 4.0) ─────────────
+    DEPTH_Z = 4.0     # kedalaman bangunan (sumbu Z)
+    bz = sz + 3.5     # pusat bangunan di sisi belakang peron (z positif)
+ 
+    # Dinding depan (menghadap peron / rel)
+    box(sx + 1.5, 1.30, bz,            7.5, 2.60, 0.28, 0.88, 0.85, 0.80)
+    # Dinding belakang
+    box(sx + 1.5, 1.30, bz + DEPTH_Z,  7.5, 2.60, 0.28, 0.82, 0.79, 0.74)
+    # Dinding samping kiri
+    box(sx - 2.2, 1.30, bz + DEPTH_Z/2, 0.28, 2.60, DEPTH_Z, 0.84, 0.81, 0.76)
+    # Dinding samping kanan
+    box(sx + 5.2, 1.30, bz + DEPTH_Z/2, 0.28, 2.60, DEPTH_Z, 0.84, 0.81, 0.76)
+    # Plafon / langit-langit (optional, tampak dari atas)
+    box(sx + 1.5, 2.62, bz + DEPTH_Z/2, 7.5, 0.10, DEPTH_Z, 0.80, 0.77, 0.72)
+ 
+    # Sayap kiri (ruang tunggu) — juga punya depth
+    box(sx - 2.5, 1.00, bz + DEPTH_Z/2 - 0.5, 3.0, 2.00, DEPTH_Z - 0.5, 0.82, 0.79, 0.74)
+    # Sayap kanan (kantor/tiket)
+    box(sx + 5.2, 1.00, bz + DEPTH_Z/2 - 0.5, 2.5, 2.00, DEPTH_Z - 0.5, 0.82, 0.79, 0.74)
+ 
+    # ── Atap utama (genteng coklat merah) — Z ikut membesar ───────────────
+    draw_prisma_atap(sx + 1.5, 2.62, bz + DEPTH_Z/2,  8.2, 1.20, DEPTH_Z + 1.0, 0.58, 0.18, 0.08)
+    # Atap sayap kiri
+    draw_prisma_atap(sx - 2.5, 2.02, bz + DEPTH_Z/2 - 0.5, 3.5, 0.80, DEPTH_Z + 0.5, 0.55, 0.16, 0.07)
+    # Atap sayap kanan
+    draw_prisma_atap(sx + 5.2, 2.02, bz + DEPTH_Z/2 - 0.5, 3.0, 0.75, DEPTH_Z + 0.5, 0.55, 0.16, 0.07)
+ 
+    # ── Jendela & pintu bangunan ───────────────────────────────────────────
+    # Pintu utama (tengah, menghadap peron)
+    box(sx + 1.5, 0.90, bz - 0.02,  0.90, 1.80, 0.06, 0.40, 0.22, 0.08)   # kusen
+    box(sx + 1.5, 0.92, bz - 0.04,  0.70, 1.50, 0.05, 0.65, 0.82, 0.90)   # kaca
+    # Jendela kiri depan
+    box(sx - 0.5, 1.20, bz - 0.02,  0.85, 0.70, 0.06, 0.65, 0.82, 0.90)
+    # Jendela kanan depan
+    box(sx + 3.5, 1.20, bz - 0.02,  0.85, 0.70, 0.06, 0.65, 0.82, 0.90)
+    # Jendela sayap kiri
+    box(sx - 2.5, 0.95, bz - 0.02,  0.70, 0.60, 0.06, 0.65, 0.82, 0.90)
+    # Jendela belakang (opsional, tampak dari angle belakang)
+    box(sx + 1.5, 1.20, bz + DEPTH_Z + 0.02, 1.20, 0.70, 0.06, 0.65, 0.82, 0.90)
+ 
+    # ── Papan nama stasiun ─────────────────────────────────────────────────
+    box(sx + 1.5, 2.20, bz - 0.05,  3.20, 0.42, 0.12, 0.92, 0.78, 0.12)   # papan kuning KAI
+    box(sx + 1.5, 2.20, bz - 0.05,  3.30, 0.50, 0.10, 0.35, 0.25, 0.10)   # bingkai
+ 
+    # ── Kanopi peron (atap peneduh, memanjang di atas peron) ──────────────
+    box(sx, 2.70, sz - 0.5,  14.0, 0.10, 3.2, 0.50, 0.50, 0.52)   # atap kanopi
+    box(sx, 2.55, sz - 0.5,  13.6, 0.06, 3.0, 0.38, 0.38, 0.40)   # rangka bawah
+    # Tiang-tiang kanopi
+    for tx_off in [-5.0, -2.0, 1.0, 4.0]:
+        tiang_vertikal(sx + tx_off, 0.40, sz - 0.5, 0.09, 2.30, 8, 0.30, 0.30, 0.32)
+        box(sx + tx_off, 0.24, sz - 0.5, 0.30, 0.08, 0.30, 0.42, 0.40, 0.38)   # plat kaki
+ 
+    # ── Bangku tunggu di peron ─────────────────────────────────────────────
+    for bx_off in [-4.0, -0.5, 3.0]:
+        bx = sx + bx_off
+        box(bx, 0.95, sz - 0.30, 1.60, 0.08, 0.08, 0.38, 0.22, 0.08)  # sandaran
+        box(bx, 0.68, sz - 0.30, 1.60, 0.08, 0.38, 0.35, 0.20, 0.08)  # dudukan
+        box(bx - 0.68, 0.44, sz - 0.30, 0.08, 0.44, 0.38, 0.28, 0.16, 0.06)  # kaki kiri
+        box(bx + 0.68, 0.44, sz - 0.30, 0.08, 0.44, 0.38, 0.28, 0.16, 0.06)  # kaki kanan
+ 
+    # ── Lampu peron ───────────────────────────────────────────────────────
+    for lx_off in [-4.5, 0.0, 4.5]:
+        lx = sx + lx_off
+        tiang_vertikal(lx, 0.40, sz - 1.20, 0.06, 2.35, 8, 0.20, 0.20, 0.22)
+        silinder(lx - 0.12, 2.72, sz - 1.20, 0.08, 0.24, 8, 0.12, 0.12, 0.12)
+        bola(lx + 0.12, 2.78, sz - 1.20, 0.12, cr=1.0, cg=0.98, cb=0.72)
+ 
+    # ── Tiang sinyal sederhana ────────────────────────────────────────────
+    tiang_vertikal(sx + 6.2, 0.40, sz - 0.80, 0.08, 3.30, 8, 0.20, 0.20, 0.22)
+    box(sx + 6.2, 3.55, sz - 0.80, 0.50, 0.50, 0.08, 0.90, 0.75, 0.05)
+    box(sx + 6.2, 3.85, sz - 0.80, 0.50, 0.08, 0.08, 0.85, 0.10, 0.10)
+    bola(sx + 6.2, 3.70, sz - 0.75, 0.10, cr=0.95, cg=0.08, cb=0.08)
+ 
+    # ── Pilar dekoratif sudut bangunan ────────────────────────────────────
+    for px_off in [-1.4, 4.5]:
+        tiang_vertikal(sx + px_off, 0.00, bz - 0.10, 0.18, 2.62, 8, 0.78, 0.74, 0.68)
+ 
+    # ── Tangga turun dari peron ke jalan ──────────────────────────────────
+    for step in range(4):
+        box(sx - 5.5, step * 0.09 + 0.05, sz - 1.8 - step * 0.25,
+            1.20, 0.10, 0.52,
+            0.55, 0.52, 0.48)
+ 
+    # ── Pagar pengaman tepi peron (sisi rel) ─────────────────────────────
+    for fx in range(-6, 7):
+        tiang_vertikal(sx + fx * 1.1, 0.40, sz - 1.90, 0.04, 0.55, 6, 0.45, 0.42, 0.40)
+    box(sx, 0.94, sz - 1.90, 13.0, 0.06, 0.06, 0.45, 0.42, 0.40)
+    box(sx, 0.70, sz - 1.90, 13.0, 0.04, 0.04, 0.45, 0.42, 0.40)
+ 
+    # ── Pot bunga / tanaman hias di depan stasiun ─────────────────────────
+    for px_off, pz_off in [(-4.2, bz - 0.20), (6.8, bz - 0.20)]:
+        silinder(sx + px_off, 0.40, pz_off, 0.22, 0.28, 8, 0.55, 0.35, 0.18)
+        silinder(sx + px_off, 0.68, pz_off, 0.18, 0.20, 8, 0.18, 0.50, 0.15)
+        bola(sx + px_off, 0.92, pz_off, 0.22, cr=0.18, cg=0.52, cb=0.15)
+ 
+    # ── Area parkir / halaman stasiun ─────────────────────────────────────
+    box(sx, 0.03, bz + DEPTH_Z + 3.0, 16.0, 0.06, 4.0, 0.40, 0.38, 0.36)   # aspal parkir
+    # Marka parkir
+    for px_off in [-5.5, -2.0, 1.5, 5.0]:
+        box(sx + px_off, 0.07, bz + DEPTH_Z + 3.0, 0.10, 0.01, 3.5, 0.75, 0.75, 0.75)
 
 # ═══════════════════════════════════════════════
 #  KERETA
@@ -1344,6 +1464,7 @@ def main():
 
         cam.apply(kendaraan)
 
+        # Buat nge draw di map
         draw_jalan()
         draw_jalan_cabang()
         draw_zebra_dan_trotoar()
@@ -1351,6 +1472,8 @@ def main():
         draw_terowongan()
         draw_portal(sim.palang, sim.merah)
         draw_bangunan()
+        draw_stasiun()
+
         # Driver mode: skip menggambar kendaraan yg kamera ada di dalamnya
         driver_idx = cam._driver_idx % len(kendaraan) if kendaraan else -1
         for i, k in enumerate(kendaraan):
