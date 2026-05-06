@@ -388,59 +388,113 @@ def draw_stasiun():
  
     # ── Pondasi / platform peron ──────────────────────────────────────────
     # Peron memanjang di sumbu X, lebar ke arah Z (sisi penumpang)
-    box(sx, 0.20, sz,       14.0, 0.40, 5.0,  0.62, 0.58, 0.54)   # lantai peron utama
-    box(sx, 0.08, sz - 4.0, 14.0, 0.16, 2.0,  0.50, 0.47, 0.44)   # bahu/tepi peron
+    # DIPERBAIKI: Y turun dari 0.20 → 0.05 dan 0.08 → 0.02 agar tidak nabrak rel
+    box(sx, 0.05, sz,       14.0, 0.10, 5.0,  0.62, 0.58, 0.54)   # lantai peron utama
+    box(sx, 0.02, sz - 4.0, 14.0, 0.04, 2.0,  0.50, 0.47, 0.44)   # bahu/tepi peron
  
     # ── Bangunan utama stasiun (sekarang punya depth Z = 4.0) ─────────────
     DEPTH_Z = 4.0     # kedalaman bangunan (sumbu Z)
     bz = sz + 3.5     # pusat bangunan di sisi belakang peron (z positif)
  
-    # Dinding depan (menghadap peron / rel)
-    box(sx + 1.5, 1.30, bz,            7.5, 2.60, 0.28, 0.88, 0.85, 0.80)
+    # STRUKTUR UTAMA: Body bangunan yang lebih besar & kokoh
+    # Dinding depan (menghadap peron / rel) - berwarna krem cerah khas stasiun
+    box(sx + 1.5, 1.35, bz,            8.0, 3.00, 0.30, 0.92, 0.88, 0.82)
     # Dinding belakang
-    box(sx + 1.5, 1.30, bz + DEPTH_Z,  7.5, 2.60, 0.28, 0.82, 0.79, 0.74)
+    box(sx + 1.5, 1.35, bz + DEPTH_Z,  8.0, 3.00, 0.30, 0.85, 0.81, 0.74)
     # Dinding samping kiri
-    box(sx - 2.2, 1.30, bz + DEPTH_Z/2, 0.28, 2.60, DEPTH_Z, 0.84, 0.81, 0.76)
+    box(sx - 2.5, 1.35, bz + DEPTH_Z/2, 0.30, 3.00, DEPTH_Z, 0.88, 0.84, 0.76)
     # Dinding samping kanan
-    box(sx + 5.2, 1.30, bz + DEPTH_Z/2, 0.28, 2.60, DEPTH_Z, 0.84, 0.81, 0.76)
-    # Plafon / langit-langit (optional, tampak dari atas)
-    box(sx + 1.5, 2.62, bz + DEPTH_Z/2, 7.5, 0.10, DEPTH_Z, 0.80, 0.77, 0.72)
- 
-    # Sayap kiri (ruang tunggu) — juga punya depth
-    box(sx - 2.5, 1.00, bz + DEPTH_Z/2 - 0.5, 3.0, 2.00, DEPTH_Z - 0.5, 0.82, 0.79, 0.74)
+    box(sx + 5.5, 1.35, bz + DEPTH_Z/2, 0.30, 3.00, DEPTH_Z, 0.88, 0.84, 0.76)
+    # Plafon / langit-langit
+    box(sx + 1.5, 3.00, bz + DEPTH_Z/2, 8.0, 0.12, DEPTH_Z, 0.78, 0.75, 0.68)
+    
+    # SAYAP/WINGS - Area tunggu dan tiket lebih besar
+    # Sayap kiri (ruang tunggu) 
+    box(sx - 3.2, 1.20, bz + DEPTH_Z/2 - 0.8, 3.5, 2.50, DEPTH_Z - 0.2, 0.88, 0.84, 0.76)
     # Sayap kanan (kantor/tiket)
-    box(sx + 5.2, 1.00, bz + DEPTH_Z/2 - 0.5, 2.5, 2.00, DEPTH_Z - 0.5, 0.82, 0.79, 0.74)
+    box(sx + 6.2, 1.20, bz + DEPTH_Z/2 - 0.8, 3.0, 2.50, DEPTH_Z - 0.2, 0.88, 0.84, 0.76)
+    
+    # KOLOM/PILAR DEPAN - untuk sokongan struktur & estetika
+    for col_x in [sx - 1.0, sx + 1.5, sx + 4.0, sx + 6.5]:
+        box(col_x, 0.15, bz - 0.05, 0.25, 3.20, 0.25, 0.80, 0.76, 0.68)
+    
+    # ── PORTICO / SERAMBI DEPAN (entrance shelter) ────────────────────────
+    # Platform serambi (raised deck)
+    box(sx + 1.5, 0.12, bz - 0.50, 5.0, 0.24, 1.50, 0.68, 0.64, 0.58)
+    
+    # Atap serambi (menjulur ke depan)
+    draw_prisma_atap(sx + 1.5, 3.20, bz - 0.50, 5.5, 1.50, 1.60, 0.60, 0.20, 0.08)
+    
+    # Pilar serambi (4 tiang)
+    for serambi_x in [sx - 1.0, sx + 0.5, sx + 3.0, sx + 4.5]:
+        tiang_vertikal(serambi_x, 0.12, bz - 0.50, 0.16, 3.10, 8, 0.72, 0.68, 0.60)
+        box(serambi_x, 0.15, bz - 0.50, 0.28, 0.30, 0.28, 0.58, 0.53, 0.46)  # base
  
     # ── Atap utama (genteng coklat merah) — Z ikut membesar ───────────────
-    draw_prisma_atap(sx + 1.5, 2.62, bz + DEPTH_Z/2,  8.2, 1.20, DEPTH_Z + 1.0, 0.58, 0.18, 0.08)
+    # Atap utama yang lebih kokoh
+    draw_prisma_atap(sx + 1.5, 3.05, bz + DEPTH_Z/2,  8.5, 1.40, DEPTH_Z + 1.0, 0.62, 0.22, 0.10)
+    
     # Atap sayap kiri
-    draw_prisma_atap(sx - 2.5, 2.02, bz + DEPTH_Z/2 - 0.5, 3.5, 0.80, DEPTH_Z + 0.5, 0.55, 0.16, 0.07)
+    draw_prisma_atap(sx - 3.2, 2.55, bz + DEPTH_Z/2 - 0.8, 4.0, 1.00, DEPTH_Z + 0.3, 0.60, 0.20, 0.08)
+    
     # Atap sayap kanan
-    draw_prisma_atap(sx + 5.2, 2.02, bz + DEPTH_Z/2 - 0.5, 3.0, 0.75, DEPTH_Z + 0.5, 0.55, 0.16, 0.07)
+    draw_prisma_atap(sx + 6.2, 2.55, bz + DEPTH_Z/2 - 0.8, 3.5, 1.00, DEPTH_Z + 0.3, 0.60, 0.20, 0.08)
+    
+    # OVERHANGS / TERITISAN - untuk perlindungan depan (khas stasiun)
+    box(sx + 1.5, 3.10, bz - 0.35, 8.5, 0.08, 0.60, 0.55, 0.18, 0.08)   # teritisan depan
+    box(sx + 1.5, 3.10, bz + DEPTH_Z + 0.35, 8.5, 0.08, 0.60, 0.55, 0.18, 0.08)   # teritisan belakang
+    
+    # ── SKYLIGHT & VENTILASI ATAP ──────────────────────────────────────────
+    # Skylight/cupola (untuk cahaya & ventilasi)
+    box(sx - 1.0, 3.15, bz + DEPTH_Z/2 - 1.0, 1.20, 0.20, 1.20, 0.50, 0.50, 0.52)   # skylight kiri
+    box(sx + 4.0, 3.15, bz + DEPTH_Z/2 + 1.0, 1.20, 0.20, 1.20, 0.50, 0.50, 0.52)   # skylight kanan
+    
+    # Ventilasi samping atap (untuk aerasi)
+    for vent_x in [sx - 2.5, sx + 5.5]:
+        silinder(vent_x, 3.20, bz + DEPTH_Z/2, 0.15, 0.20, 8, 0.55, 0.55, 0.55)
+        box(vent_x, 3.25, bz + DEPTH_Z/2, 0.35, 0.10, 0.35, 0.40, 0.40, 0.42)
  
     # ── Jendela & pintu bangunan ───────────────────────────────────────────
-    # Pintu utama (tengah, menghadap peron)
-    box(sx + 1.5, 0.90, bz - 0.02,  0.90, 1.80, 0.06, 0.40, 0.22, 0.08)   # kusen
-    box(sx + 1.5, 0.92, bz - 0.04,  0.70, 1.50, 0.05, 0.65, 0.82, 0.90)   # kaca
-    # Jendela kiri depan
-    box(sx - 0.5, 1.20, bz - 0.02,  0.85, 0.70, 0.06, 0.65, 0.82, 0.90)
-    # Jendela kanan depan
-    box(sx + 3.5, 1.20, bz - 0.02,  0.85, 0.70, 0.06, 0.65, 0.82, 0.90)
-    # Jendela sayap kiri
-    box(sx - 2.5, 0.95, bz - 0.02,  0.70, 0.60, 0.06, 0.65, 0.82, 0.90)
-    # Jendela belakang (opsional, tampak dari angle belakang)
-    box(sx + 1.5, 1.20, bz + DEPTH_Z + 0.02, 1.20, 0.70, 0.06, 0.65, 0.82, 0.90)
+    # PINTU UTAMA - double door besar (main entrance)
+    box(sx + 1.5, 1.00, bz - 0.03,  1.20, 2.00, 0.08, 0.45, 0.28, 0.12)   # kusen pintu
+    box(sx + 1.5, 1.05, bz - 0.05,  0.95, 1.80, 0.05, 0.70, 0.85, 0.95)   # kaca kiri
+    box(sx + 2.0, 1.05, bz - 0.05,  0.95, 1.80, 0.05, 0.70, 0.85, 0.95)   # kaca kanan
+    
+    # JENDELA DERET DEPAN - untuk kasir & info
+    for win_x in [-1.0, 1.5, 4.0]:
+        box(sx + win_x, 1.30, bz - 0.03,  0.95, 0.90, 0.08, 0.50, 0.32, 0.15)   # kusen
+        box(sx + win_x, 1.35, bz - 0.05,  0.75, 0.70, 0.05, 0.68, 0.88, 0.95)   # kaca
+    
+    # JENDELA SAYAP KIRI (ruang tunggu)
+    for lwin_x in [-4.2, -2.7]:
+        box(sx + lwin_x, 1.20, bz + DEPTH_Z/2 - 0.05, 0.90, 0.85, 0.10, 0.68, 0.88, 0.95)
+    
+    # JENDELA SAYAP KANAN (tiket/kantor)
+    for rwin_x in [5.2, 6.8]:
+        box(sx + rwin_x, 1.20, bz + DEPTH_Z/2 - 0.05, 0.90, 0.85, 0.10, 0.68, 0.88, 0.95)
+    
+    # JENDELA BELAKANG (ventilasi)
+    box(sx + 1.5, 1.30, bz + DEPTH_Z + 0.03, 1.50, 0.80, 0.08, 0.68, 0.88, 0.95)
  
     # ── Papan nama stasiun ─────────────────────────────────────────────────
-    box(sx + 1.5, 2.20, bz - 0.05,  3.20, 0.42, 0.12, 0.92, 0.78, 0.12)   # papan kuning KAI
-    box(sx + 1.5, 2.20, bz - 0.05,  3.30, 0.50, 0.10, 0.35, 0.25, 0.10)   # bingkai
+    # Papan utama KAI (kuning gold khas Indonesia)
+    box(sx + 1.5, 2.65, bz - 0.08,  4.00, 0.50, 0.16, 0.95, 0.82, 0.15)   # papan kuning
+    box(sx + 1.5, 2.65, bz - 0.10,  4.20, 0.60, 0.12, 0.35, 0.28, 0.12)   # frame/bingkai
+    
+    # LOGO/EMBLEM belakang pintu
+    bola(sx + 1.5, 2.20, bz - 0.06, 0.20, cr=0.95, cg=0.82, cb=0.15)   # logo melingkar
+    
+    # LAMPU PAPAN (indikator)
+    bola(sx - 0.5, 2.65, bz - 0.10, 0.08, cr=1.0, cg=0.98, cb=0.72)   # lampu kiri
+    bola(sx + 3.5, 2.65, bz - 0.10, 0.08, cr=1.0, cg=0.98, cb=0.72)   # lampu kanan
  
     # ── Kanopi peron (atap peneduh, memanjang di atas peron) ──────────────
-    box(sx, 2.70, sz - 0.5,  14.0, 0.10, 3.2, 0.50, 0.50, 0.52)   # atap kanopi
-    box(sx, 2.55, sz - 0.5,  13.6, 0.06, 3.0, 0.38, 0.38, 0.40)   # rangka bawah
+    # DIPERBAIKI: Naikkan kanopi dari Y=2.70 → 3.20 dan tiang lebih panjang
+    box(sx, 3.20, sz - 0.5,  14.0, 0.10, 3.2, 0.50, 0.50, 0.52)   # atap kanopi
+    box(sx, 3.05, sz - 0.5,  13.6, 0.06, 3.0, 0.38, 0.38, 0.40)   # rangka bawah
     # Tiang-tiang kanopi
     for tx_off in [-5.0, -2.0, 1.0, 4.0]:
-        tiang_vertikal(sx + tx_off, 0.40, sz - 0.5, 0.09, 2.30, 8, 0.30, 0.30, 0.32)
+        tiang_vertikal(sx + tx_off, 0.40, sz - 0.5, 0.09, 2.80, 8, 0.30, 0.30, 0.32)
         box(sx + tx_off, 0.24, sz - 0.5, 0.30, 0.08, 0.30, 0.42, 0.40, 0.38)   # plat kaki
  
     # ── Bangku tunggu di peron ─────────────────────────────────────────────
@@ -465,8 +519,14 @@ def draw_stasiun():
     bola(sx + 6.2, 3.70, sz - 0.75, 0.10, cr=0.95, cg=0.08, cb=0.08)
  
     # ── Pilar dekoratif sudut bangunan ────────────────────────────────────
-    for px_off in [-1.4, 4.5]:
-        tiang_vertikal(sx + px_off, 0.00, bz - 0.10, 0.18, 2.62, 8, 0.78, 0.74, 0.68)
+    # Pilar utama di sudut (untuk arsitektur yang lebih kokoh)
+    for px_off in [-2.5, 5.5]:
+        # Pilar utama
+        tiang_vertikal(sx + px_off, 0.00, bz + DEPTH_Z/2, 0.20, 3.00, 8, 0.75, 0.70, 0.62)
+        # Base/alas pilar
+        box(sx + px_off, 0.15, bz + DEPTH_Z/2, 0.35, 0.30, 0.35, 0.65, 0.60, 0.52)
+        # Capital (puncak) pilar
+        box(sx + px_off, 3.02, bz + DEPTH_Z/2, 0.40, 0.15, 0.40, 0.70, 0.65, 0.58)
  
     # ── Tangga turun dari peron ke jalan ──────────────────────────────────
     for step in range(4):
@@ -491,6 +551,21 @@ def draw_stasiun():
     # Marka parkir
     for px_off in [-5.5, -2.0, 1.5, 5.0]:
         box(sx + px_off, 0.07, bz + DEPTH_Z + 3.0, 0.10, 0.01, 3.5, 0.75, 0.75, 0.75)
+    
+    # ── PAPAN INFORMASI BESAR (di area parkir depan) ──────────────────────
+    # Tiang penopang papan besar
+    tiang_vertikal(sx - 6.0, 0.20, bz + DEPTH_Z + 1.5, 0.16, 2.80, 8, 0.55, 0.50, 0.45)
+    tiang_vertikal(sx + 8.0, 0.20, bz + DEPTH_Z + 1.5, 0.16, 2.80, 8, 0.55, 0.50, 0.45)
+    
+    # Papan informasi utama (kaya papan jalanan)
+    box(sx + 1.0, 2.50, bz + DEPTH_Z + 1.5, 14.0, 0.50, 0.12, 0.92, 0.88, 0.15)   # papan info kuning
+    box(sx + 1.0, 2.50, bz + DEPTH_Z + 1.52, 14.2, 0.55, 0.08, 0.30, 0.25, 0.10)   # frame/bingkai hitam
+    
+    # Lampu penerang papan (di sudut)
+    silinder(sx - 6.0, 2.85, bz + DEPTH_Z + 1.5, 0.10, 0.15, 8, 0.15, 0.15, 0.15)
+    bola(sx - 6.0, 3.05, bz + DEPTH_Z + 1.5, 0.12, cr=1.0, cg=0.98, cb=0.72)
+    silinder(sx + 8.0, 2.85, bz + DEPTH_Z + 1.5, 0.10, 0.15, 8, 0.15, 0.15, 0.15)
+    bola(sx + 8.0, 3.05, bz + DEPTH_Z + 1.5, 0.12, cr=1.0, cg=0.98, cb=0.72)
 
 # ═══════════════════════════════════════════════
 #  KERETA
