@@ -108,25 +108,38 @@ def draw_jalan_cabang():
     aspal = (0.20, 0.20, 0.22)
     bahu  = (0.48, 0.46, 0.44)
     marka = (0.9,  0.9,  0.9 )
+    trot  = (0.68, 0.66, 0.63)
 
     for zc in (-28.0, 28.0):
         # Badan jalan cabang (sumbu X, lebar 6, panjang 60)
-        box(0, 0.03, zc, 60, 0.06, 6.0, *aspal)
+        box(0, 0.04, zc, 60, 0.06, 6.0, *aspal)
         # Bahu jalan / shoulder
-        box(0, 0.025, zc-3.2, 60, 0.04, 0.6, *bahu)
-        box(0, 0.025, zc+3.2, 60, 0.04, 0.6, *bahu)
+        box(0, 0.035, zc-3.2, 60, 0.04, 0.6, *bahu)
+        box(0, 0.035, zc+3.2, 60, 0.04, 0.6, *bahu)
         # Marka tengah putus-putus
         for xi in range(-14, 15):
             xi2 = xi * 2.2
-            box(xi2, 0.07, zc, 0.15, 0.01, 1.0, *marka)
+            box(xi2, 0.08, zc, 0.15, 0.01, 1.0, *marka)
         # Marka tepi solid
-        box(0, 0.065, zc-2.6, 60, 0.01, 0.12, *marka)
-        box(0, 0.065, zc+2.6, 60, 0.01, 0.12, *marka)
+        box(0, 0.075, zc-2.6, 60, 0.01, 0.12, *marka)
+        box(0, 0.075, zc+2.6, 60, 0.01, 0.12, *marka)
 
-        # Trotoar sisi jalan cabang
-        trot = (0.68, 0.66, 0.63)
-        box(0, 0.11, zc-4.0, 60, 0.22, 2.0, *trot)
-        box(0, 0.11, zc+4.0, 60, 0.22, 2.0, *trot)
+        # Trotoar sisi jalan cabang — skip area persimpangan (x=±8)
+        gap_x = 8.0
+        pjg_x = 30.0 - gap_x
+        for sign in (-1, 1):
+            xc_seg = sign * (gap_x + pjg_x) / 2
+            box(xc_seg, 0.11, zc-4.0, pjg_x, 0.22, 2.0, *trot)
+            box(xc_seg, 0.11, zc+4.0, pjg_x, 0.22, 2.0, *trot)
+
+        # Trotoar penyambung di area persimpangan jalan utama (x=±5.25, gap z=±3)
+        # Ini menyambung trotoar jalan utama melewati persimpangan jalan cabang
+        for tx in (-5.25, 5.25):
+            box(tx, 0.12, zc, 1.5, 0.24, 6.0, *trot)   # sambungan trotoar jalan utama di persimpangan
+        # Kerb penyambung
+        kerb = (0.45, 0.43, 0.41)
+        for kx in (-4.05, 4.05):
+            box(kx, 0.06, zc, 0.12, 0.14, 6.0, *kerb)
 
         # Pohon di pinggir jalan cabang (tiap 4 unit)
         for xi in range(-13, 14, 4):
@@ -137,7 +150,7 @@ def draw_jalan_cabang():
     # ── Jalan penghubung / on-ramp kiri (x=-20, menyambung jalan utama ke cabang) ──
     for xc in (-20.0, 20.0):
         # Ramp vertikal (sumbu Z) menghubungkan jalan utama ke jalan cabang
-        box(xc, 0.03, 0, 4.0, 0.06, 56, *aspal)
+        box(xc, 0.04, 0, 4.0, 0.06, 56, *aspal)
         # Marka tepi ramp
         box(xc-1.8, 0.065, 0, 0.12, 0.01, 56, *marka)
         box(xc+1.8, 0.065, 0, 0.12, 0.01, 56, *marka)
@@ -146,9 +159,16 @@ def draw_jalan_cabang():
             zi2 = zi * 2.0
             if abs(zi2) < 3: continue
             box(xc, 0.07, zi2, 0.12, 0.01, 1.0, *marka)
-        # Trotoar ramp
-        box(xc-2.8, 0.11, 0, 1.2, 0.22, 56, *trot)
-        box(xc+2.8, 0.11, 0, 1.2, 0.22, 56, *trot)
+        # Trotoar ramp — dibagi dua, skip area persimpangan jalan utama (z=±8)
+        gap_z = 8.0
+        pjg   = 28.0 - gap_z
+        for sign in (-1, 1):
+            zc_seg = sign * (gap_z + pjg) / 2
+            box(xc-2.8, 0.11, zc_seg, 1.2, 0.22, pjg, *trot)
+            box(xc+2.8, 0.11, zc_seg, 1.2, 0.22, pjg, *trot)
+        # Trotoar penyambung di area persimpangan jalan utama (z=0)
+        box(xc-2.8, 0.11, 0, 1.2, 0.22, 16.0, *trot)
+        box(xc+2.8, 0.11, 0, 1.2, 0.22, 16.0, *trot)
         # Pohon di ramp
         for zi in range(-12, 13, 5):
             if abs(zi) < 4: continue
@@ -345,15 +365,15 @@ def draw_zebra_dan_trotoar():
     trot = (0.68, 0.66, 0.63)
     kerb = (0.45, 0.43, 0.41)
     # Trotoar (lebar 1.5, sepanjang jalan, y sedikit lebih tinggi dari aspal)
-    box( 4.75, 0.12, 0, 1.5, 0.24, 60, *trot)
-    box(-4.75, 0.12, 0, 1.5, 0.24, 60, *trot)
+    box( 5.25, 0.12, 0, 1.5, 0.24, 60, *trot)
+    box(-5.25, 0.12, 0, 1.5, 0.24, 60, *trot)
     # Kanstin / kerb pemisah jalan-trotoar
-    box( 4.08, 0.06, 0, 0.18, 0.14, 60, *kerb)
-    box(-4.08, 0.06, 0, 0.18, 0.14, 60, *kerb)
+    box( 4.05, 0.06, 0, 0.12, 0.14, 60, *kerb)
+    box(-4.05, 0.06, 0, 0.12, 0.14, 60, *kerb)
     # Garis nat ubin trotoar (tiap 1.5 unit)
     for sz in range(-29, 30, 2):
-        box( 4.75, 0.245, sz, 1.5, 0.005, 0.06, 0.55, 0.53, 0.51)
-        box(-4.75, 0.245, sz, 1.5, 0.005, 0.06, 0.55, 0.53, 0.51)
+        box( 5.25, 0.245, sz, 1.5, 0.005, 0.06, 0.55, 0.53, 0.51)
+        box(-5.25, 0.245, sz, 1.5, 0.005, 0.06, 0.55, 0.53, 0.51)
 
     # ── Garis berhenti (stop line) sebelum palang ────────────────────────
     box(0, 0.055, -4.5, 8.0, 0.02, 0.20, 0.92, 0.92, 0.92)
@@ -657,35 +677,27 @@ def draw_roda_k(x, y, z, r=0.28):
 def draw_mobil(x, z, wi=0):
     r,g,b = WARNA[wi % len(WARNA)]
     glPushMatrix(); glTranslatef(x,0,z)
-    box(0,0.32,0,1.0,0.52,2.2,r*0.85,g*0.85,b*0.85)
-    box(0,0.82,0.1,0.9,0.45,1.35,r,g,b)
-    box(0,0.85,0.82,0.85,0.35,0.04,0.6,0.82,0.92)
-    box(0,0.85,-0.72,0.85,0.30,0.04,0.6,0.82,0.92)
-    box( 0.38,0.38,1.11,0.18,0.12,0.04,1.0,1.0,0.8)
-    box(-0.38,0.38,1.11,0.18,0.12,0.04,1.0,1.0,0.8)
-    draw_roda_k(0.52,0.25,0.75); draw_roda_k(-0.52,0.25,0.75)
-    draw_roda_k(0.52,0.25,-0.75); draw_roda_k(-0.52,0.25,-0.75)
+    box(0,0.32, 0,    1.0,0.52,2.2,  r*0.85,g*0.85,b*0.85)  # bodi bawah
+    box(0,0.82, 0.35, 0.9,0.45,1.2,  r,g,b)                  # kabin (geser ke belakang)
+    box(0,0.85,-0.25, 0.85,0.35,0.04,0.6,0.82,0.92)          # kaca depan (muka kabin)
+    box(0,0.85, 0.95, 0.85,0.30,0.04,0.6,0.82,0.92)          # kaca belakang
+    box( 0.38,0.38,-1.11,0.18,0.12,0.04,1.0,1.0,0.8)         # lampu depan kanan
+    box(-0.38,0.38,-1.11,0.18,0.12,0.04,1.0,1.0,0.8)         # lampu depan kiri
+    draw_roda_k( 0.52,0.25, 0.75); draw_roda_k(-0.52,0.25, 0.75)
+    draw_roda_k( 0.52,0.25,-0.75); draw_roda_k(-0.52,0.25,-0.75)
     glPopMatrix()
 
 def draw_motor_obj(x, z, wi=0):
-    """Gambar objek motor - lebih detail dari sebelumnya."""
     r,g,b = WARNA[wi % len(WARNA)]
     glPushMatrix(); glTranslatef(x,0,z)
-    # Badan utama motor
-    box(0,0.42,0,  0.40,0.28,1.10, r,g,b)
-    # Tangki bensin (membulat di atas)
-    box(0,0.65,0.1,0.38,0.18,0.55, r*0.9,g*0.9,b*0.9)
-    # Setang / handlebar
-    box(0,0.78,0.48,0.68,0.07,0.07, 0.25,0.25,0.25)
-    # Kepala / headlamp
-    box(0,0.55,0.58,0.30,0.22,0.12, 0.15,0.15,0.15)
-    bola(0,0.55,0.65,0.08, cr=1.0,cg=1.0,cb=0.7)
-    # Knalpot
-    box(0.22,0.28,-0.30,0.06,0.08,0.70, 0.50,0.50,0.50)
-    # Mesin
-    box(0,0.28,0,0.34,0.22,0.55, 0.20,0.20,0.22)
-    # Kursi / seat
-    box(0,0.62,-0.15,0.38,0.10,0.52, 0.12,0.10,0.10)
+    box(0,0.42,0,   0.40,0.28,1.10, r,g,b)
+    box(0,0.65,-0.1, 0.38,0.18,0.55, r*0.9,g*0.9,b*0.9)
+    box(0,0.78,-0.48,0.68,0.07,0.07, 0.25,0.25,0.25)
+    box(0,0.55,-0.58,0.30,0.22,0.12, 0.15,0.15,0.15)
+    bola(0,0.55,-0.65,0.08, cr=1.0,cg=1.0,cb=0.7)
+    box(0.22,0.28, 0.30,0.06,0.08,0.70, 0.50,0.50,0.50)
+    box(0,0.28,0,   0.34,0.22,0.55, 0.20,0.20,0.22)
+    box(0,0.62, 0.15,0.38,0.10,0.52, 0.12,0.10,0.10)
     # Roda depan & belakang (lebih tipis dari mobil)
     draw_roda_k( 0.10,0.22, 0.50,0.22)
     draw_roda_k(-0.10,0.22, 0.50,0.22)
@@ -700,39 +712,16 @@ def draw_motor_obj(x, z, wi=0):
 #  Kelas Kendaraan (state-driven)
 # ─────────────────────────────────────────────
 class Kendaraan:
-    """
-    Satu unit kendaraan (mobil / motor).
-    State berhenti diatur oleh flag 'tutup' (palang tertutup)
-    dan 'depan_z' (jarak aman dari kendaraan di depannya).
-    Saat mendekati pertigaan (z≈±26), kendaraan bisa belok kanan/kiri.
-    """
-    BELOK_LURUS = 0
-    BELOK_KANAN = 1   # belok ke +x (jalan cabang)
-    BELOK_KIRI  = 2   # belok ke -x (jalan cabang)
+    """Satu unit kendaraan (mobil / motor). Bergerak lurus tanpa belok."""
 
     def __init__(self, z, x, tipe, warna):
-        self.z     = float(z)
-        self.x     = float(x)
-        self.tipe  = tipe
-        self.warna = warna
-        self.arah  = 1 if x < 0 else -1
-        self.speed = 3.8 if tipe == 'motor' else 3.2
+        self.z        = float(z)
+        self.x        = float(x)
+        self.tipe     = tipe
+        self.warna    = warna
+        self.arah     = 1 if x < 0 else -1
+        self.speed    = 3.8 if tipe == 'motor' else 3.2
         self.berhenti = False
-        # Tentukan perilaku belok secara deterministik (1/3 belok kanan, 1/3 belok kiri)
-        import random as _rnd
-        r = _rnd.random()
-        if r < 0.33:
-            self.belok = self.BELOK_KANAN
-        elif r < 0.66:
-            self.belok = self.BELOK_KIRI
-        else:
-            self.belok = self.BELOK_LURUS
-        self._belok_aktif = False   # sedang dalam animasi belok
-        self._belok_progress = 0.0  # 0..1
-
-    def _z_pertigaan(self):
-        """Z pertigaan yang relevan untuk arah kendaraan ini."""
-        return 26.0 if self.arah == 1 else -26.0
 
     def update(self, dt, palang_tutup, depan_z=None, pejalan_list=None):
         jarak_aman   = 3.5 if self.tipe == 'motor' else 4.5
@@ -790,61 +779,15 @@ class Kendaraan:
             if jarak < jarak_aman:
                 return
 
-        # ── Logika belok di pertigaan ──────────────────────────────────
-        z_ptg = self._z_pertigaan()
-        dekat_pertigaan = abs(self.z - z_ptg) < 2.0
-
-        if self.belok != self.BELOK_LURUS and dekat_pertigaan:
-            self._belok_aktif = True
-
-        if self._belok_aktif:
-            self._belok_progress += dt * 1.2   # kecepatan animasi belok
-            # Gerak Z terus (melambat saat belok)
-            self.z += self.arah * self.speed * 0.5 * dt
-            # Gerak X sesuai arah belok
-            if self.belok == self.BELOK_KANAN:
-                self.x += self.speed * 0.5 * dt   # ke +x
-            else:
-                self.x -= self.speed * 0.5 * dt   # ke -x
-            # Selesai belok: reset ke jalur cabang dan lanjut lurus di X
-            if self._belok_progress >= 1.0:
-                self._belok_aktif = False
-                self._belok_progress = 0.0
-                self.belok = self.BELOK_LURUS  # setelah belok, lurus terus
-            return
-
-        # Gerak maju normal
+        # Gerak maju lurus
         self.z += self.arah * self.speed * dt
-
-        # Wrap-around
-        if self.z >  34: self.z = -34; self._reset_belok()
-        if self.z < -34: self.z =  34; self._reset_belok()
-
-    def _reset_belok(self):
-        """Saat wrap, acak ulang keputusan belok dan kembalikan x ke jalur semula."""
-        import random as _rnd
-        self.x = -1.5 if self.arah == 1 else 1.5
-        r = _rnd.random()
-        if r < 0.33:   self.belok = self.BELOK_KANAN
-        elif r < 0.66: self.belok = self.BELOK_KIRI
-        else:          self.belok = self.BELOK_LURUS
-        self._belok_aktif = False
-        self._belok_progress = 0.0
+        if self.z >  34: self.z = -34
+        if self.z < -34: self.z =  34
 
     def draw(self):
         glPushMatrix()
         glTranslatef(self.x, 0, self.z)
-        # Rotasi: saat belok, rotate bertahap ke arah belok
-        base_rot = 0.0 if self.arah == 1 else 180.0
-        if self._belok_aktif:
-            t = min(self._belok_progress, 1.0)
-            if self.belok == self.BELOK_KANAN:
-                extra = -90.0 * t
-            else:
-                extra = 90.0 * t
-            glRotatef(base_rot + extra, 0, 1, 0)
-        else:
-            glRotatef(base_rot, 0, 1, 0)
+        glRotatef(180.0 if self.arah == 1 else 0.0, 0, 1, 0)
         if self.tipe == 'mobil':
             draw_mobil(0, 0, self.warna)
         else:
@@ -855,7 +798,7 @@ class Kendaraan:
         return (self.x, 0.0, self.z)
 
     def heading_deg(self):
-        return 0.0 if self.arah == 1 else 180.0
+        return 180.0 if self.arah == 1 else 0.0
 
 
 def draw_pejalan_kaki(x, z, phase, ukuran=1.0):
