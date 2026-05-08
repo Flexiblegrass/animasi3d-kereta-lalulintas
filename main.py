@@ -212,6 +212,334 @@ def draw_terowongan():
         box(tx, 3.0, bz, 1.8, 0.4, 1.0, 0.50, 0.45, 0.38)
 
 # ═══════════════════════════════════════════════
+#  CAR FREE DAY / BAZAAR
+# ═══════════════════════════════════════════════
+
+def draw_tenda_warung(cx, cy, cz, rot_y=0, warna_tenda=(0.9,0.2,0.15)):
+    """Tenda warung/stan bazaar: meja + atap tenda segitiga."""
+    glPushMatrix()
+    glTranslatef(cx, cy, cz)
+    glRotatef(rot_y, 0, 1, 0)
+    r, g, b = warna_tenda
+
+    # Meja kayu
+    box(0, 0.50, 0,   1.8, 0.08, 0.9,  0.55, 0.35, 0.15)
+    # Kaki meja (4 tiang)
+    for kx, kz in [(-0.82, 0.38), (0.82, 0.38), (-0.82, -0.38), (0.82, -0.38)]:
+        tiang_vertikal(kx, 0.0, kz, 0.04, 0.50, 6, 0.40, 0.25, 0.10)
+
+    # Tiang tenda (2 tiang di belakang)
+    tiang_vertikal(-0.85, 0.50, -0.38, 0.05, 2.0, 6, 0.55, 0.35, 0.15)
+    tiang_vertikal( 0.85, 0.50, -0.38, 0.05, 2.0, 6, 0.55, 0.35, 0.15)
+    # Tiang tenda (2 tiang di depan - lebih pendek, atap miring)
+    tiang_vertikal(-0.85, 0.50,  0.38, 0.05, 1.50, 6, 0.55, 0.35, 0.15)
+    tiang_vertikal( 0.85, 0.50,  0.38, 0.05, 1.50, 6, 0.55, 0.35, 0.15)
+
+    # Atap tenda (miring depan-belakang) - pakai quads
+    glColor3f(r, g, b)
+    glBegin(GL_QUADS)
+    # permukaan atas
+    glNormal3f(0, 1, 0.3)
+    glVertex3f(-0.95, 2.50, -0.48)
+    glVertex3f( 0.95, 2.50, -0.48)
+    glVertex3f( 0.95, 2.00,  0.48)
+    glVertex3f(-0.95, 2.00,  0.48)
+    glEnd()
+    # Sisi-sisi tenda
+    glColor3f(r*0.85, g*0.85, b*0.85)
+    glBegin(GL_QUADS)
+    # Sisi kiri
+    glNormal3f(-1, 0, 0)
+    glVertex3f(-0.95, 2.50, -0.48); glVertex3f(-0.95, 2.00, 0.48)
+    glVertex3f(-0.95, 1.50, 0.48);  glVertex3f(-0.95, 2.00, -0.48)
+    # Sisi kanan
+    glNormal3f(1, 0, 0)
+    glVertex3f( 0.95, 2.50, -0.48); glVertex3f( 0.95, 2.00, -0.48)
+    glVertex3f( 0.95, 1.50,  0.48); glVertex3f( 0.95, 2.00,  0.48)
+    # Sisi belakang
+    glNormal3f(0, 0, -1)
+    glVertex3f(-0.95, 2.50, -0.48); glVertex3f( 0.95, 2.50, -0.48)
+    glVertex3f( 0.95, 2.00, -0.48); glVertex3f(-0.95, 2.00, -0.48)
+    glEnd()
+
+    # Barang di atas meja (kotak-kotak kecil = produk/makanan)
+    box(-0.55, 0.60, 0.0,  0.35, 0.20, 0.25, 0.9, 0.7, 0.2)  # kuning - jajanan
+    box( 0.10, 0.60, 0.1,  0.30, 0.25, 0.22, 0.8, 0.3, 0.2)  # oranye - makanan
+    box( 0.55, 0.60,-0.1,  0.28, 0.18, 0.28, 0.3, 0.7, 0.4)  # hijau - minuman
+    # Wadah/baskom
+    silinder(0.0, 0.58, -0.2, 0.18, 0.10, 8, 0.70, 0.65, 0.55)
+    glPopMatrix()
+
+
+def draw_orang_berdiri(cx, cz, rot_y=0, warna=(0.3, 0.5, 0.8)):
+    """Figur orang sederhana sedang berdiri/berbelanja."""
+    glPushMatrix()
+    glTranslatef(cx, 0, cz)
+    glRotatef(rot_y, 0, 1, 0)
+    r, g, b = warna
+    # Badan
+    box(0, 0.70, 0, 0.24, 0.42, 0.18, r, g, b)
+    # Kepala
+    bola(0, 1.05, 0, 0.13, cr=0.88, cg=0.72, cb=0.55)
+    # Kaki
+    box(-0.07, 0.22, 0, 0.10, 0.38, 0.12, 0.2, 0.2, 0.4)
+    box( 0.07, 0.22, 0, 0.10, 0.38, 0.12, 0.2, 0.2, 0.4)
+    # Tangan
+    box(-0.20, 0.78, 0, 0.08, 0.30, 0.09, r*0.85, g*0.85, b*0.85)
+    box( 0.20, 0.78, 0, 0.08, 0.30, 0.09, r*0.85, g*0.85, b*0.85)
+    glPopMatrix()
+
+
+def draw_balon(cx, cz, r_col, g_col, b_col):
+    """Balon dekorasi CFD."""
+    tiang_vertikal(cx, 0.0, cz, 0.015, 2.0, 5, 0.8, 0.8, 0.8)
+    bola(cx, 2.25, cz, 0.22, cr=r_col, cg=g_col, cb=b_col)
+
+
+def draw_spanduk_cfd(cx, cy, cz, panjang=4.0, rot_y=0):
+    """Spanduk horizontal bertuliskan CAR FREE DAY."""
+    glPushMatrix()
+    glTranslatef(cx, cy, cz)
+    glRotatef(rot_y, 0, 1, 0)
+    # Tiang kiri & kanan
+    tiang_vertikal(-panjang/2, 0.0, 0, 0.06, 3.2, 6, 0.55, 0.35, 0.15)
+    tiang_vertikal( panjang/2, 0.0, 0, 0.06, 3.2, 6, 0.55, 0.35, 0.15)
+    # Banner / kain
+    box(0, 3.0, 0, panjang, 0.55, 0.08, 0.95, 0.82, 0.05)  # kuning emas
+    box(0, 3.0, 0, panjang, 0.55, 0.06, 0.90, 0.75, 0.02)
+    # Strip merah-putih (bendera)
+    box(0, 3.20, 0, panjang-0.1, 0.12, 0.09, 0.9, 0.1, 0.1)
+    box(0, 2.88, 0, panjang-0.1, 0.12, 0.09, 0.9, 0.9, 0.9)
+    glPopMatrix()
+
+
+def draw_kursi_dan_meja_kecil(cx, cz, rot_y=0):
+    """Meja kecil dengan 2 kursi untuk pengunjung."""
+    glPushMatrix()
+    glTranslatef(cx, 0, cz)
+    glRotatef(rot_y, 0, 1, 0)
+    # Meja bundar (silinder pipih)
+    silinder(0, 0.68, 0, 0.38, 0.06, 12, 0.60, 0.45, 0.25)
+    tiang_vertikal(0, 0, 0, 0.05, 0.68, 6, 0.45, 0.30, 0.12)
+    # 2 kursi kecil
+    for zk in (-0.65, 0.65):
+        box(0, 0.40, zk, 0.32, 0.06, 0.32, 0.55, 0.40, 0.20)
+        tiang_vertikal(-0.13, 0, zk-0.13, 0.03, 0.40, 5, 0.45, 0.30, 0.12)
+        tiang_vertikal( 0.13, 0, zk-0.13, 0.03, 0.40, 5, 0.45, 0.30, 0.12)
+        tiang_vertikal(-0.13, 0, zk+0.13, 0.03, 0.40, 5, 0.45, 0.30, 0.12)
+        tiang_vertikal( 0.13, 0, zk+0.13, 0.03, 0.40, 5, 0.45, 0.30, 0.12)
+    glPopMatrix()
+
+
+def draw_car_free_day():
+    """
+    Suasana Car Free Day HANYA di jalan cabang selatan (z=+28, sumbu X).
+    Kendaraan sudah dibuang. Isi: tenda warung, pengunjung, meja kursi, balon, spanduk.
+    """
+    warna_tenda = [
+        (0.9, 0.15, 0.15),   # merah
+        (0.15, 0.45, 0.85),  # biru
+        (0.15, 0.68, 0.25),  # hijau
+        (0.9, 0.65, 0.10),   # kuning
+        (0.7, 0.15, 0.75),   # ungu
+        (0.9, 0.45, 0.10),   # oranye
+    ]
+
+    # ═══ JALAN CABANG SELATAN (z=+28, memanjang sumbu X) ═════════════
+    # Area persimpangan dengan jalan utama (x=-8 s/d +8) dikosongkan untuk kendaraan.
+
+    CLEAR_X = 9.0  # jarak bebas dari pusat persimpangan ke kanan/kiri
+
+    # Tenda sisi luar (z=+31.2), menghadap ke dalam jalan
+    for i, xpos in enumerate([-26, -19, -12, -5, 2, 9, 16, 23]):
+        if abs(xpos) < CLEAR_X:
+            continue  # skip area persimpangan
+        draw_tenda_warung(xpos, 0, 31.2, rot_y=180, warna_tenda=warna_tenda[(i+3) % len(warna_tenda)])
+        draw_orang_berdiri(xpos + 0.5, 29.8, rot_y=90,  warna=(0.6, 0.4+i*0.03, 0.2))
+        draw_orang_berdiri(xpos - 0.4, 29.8, rot_y=70,  warna=(0.3, 0.5, 0.7+i*0.02))
+        if i % 3 == 1:
+            draw_kursi_dan_meja_kecil(xpos, 29.4, rot_y=0)
+
+    # Tenda sisi dalam (z=+24.8), menghadap ke dalam jalan
+    for i, xpos in enumerate([-24, -17, -10, -3, 4, 11, 18, 25]):
+        if abs(xpos) < CLEAR_X:
+            continue  # skip area persimpangan
+        draw_tenda_warung(xpos, 0, 24.8, rot_y=0, warna_tenda=warna_tenda[(i+1) % len(warna_tenda)])
+        draw_orang_berdiri(xpos,       26.2, rot_y=-90, warna=(0.7, 0.2, 0.5+i*0.03))
+        draw_orang_berdiri(xpos + 0.6, 26.8, rot_y=-70, warna=(0.4, 0.6, 0.3+i*0.02))
+        if i % 3 == 0:
+            draw_kursi_dan_meja_kecil(xpos, 26.6, rot_y=0)
+
+    # Spanduk di ujung kiri & kanan jalan cabang selatan
+    draw_spanduk_cfd(-27, 0, 28, panjang=4.0, rot_y=90)
+    draw_spanduk_cfd( 27, 0, 28, panjang=4.0, rot_y=90)
+
+    # Balon warna-warni — skip area persimpangan
+    balon_warna = [
+        (0.9,0.2,0.2),(0.2,0.5,0.9),(0.2,0.8,0.3),
+        (0.9,0.8,0.1),(0.8,0.2,0.8),(0.9,0.5,0.1),
+        (0.1,0.9,0.8),(0.9,0.3,0.6),(0.6,0.9,0.1)
+    ]
+    for i, xb in enumerate([-28, -21, -14, -7, 0, 7, 14, 21, 28]):
+        if abs(xb) < CLEAR_X:
+            continue  # skip area persimpangan
+        draw_balon(xb, 32.0, *balon_warna[i % len(balon_warna)])
+        draw_balon(xb, 24.0, *balon_warna[(i+4) % len(balon_warna)])
+
+
+# ═══════════════════════════════════════════════
+#  KONSTRUKSI & DEMO RAKYAT (jalan cabang utara z=-28)
+# ═══════════════════════════════════════════════
+
+def draw_cone_lalu_lintas(cx, cz):
+    """Traffic cone oranye."""
+    glPushMatrix(); glTranslatef(cx, 0, cz)
+    # Alas
+    box(0, 0.04, 0, 0.30, 0.08, 0.30, 0.85, 0.85, 0.85)
+    # Badan kerucut (pakai tiang silinder meruncing)
+    glColor3f(0.95, 0.45, 0.05)
+    q = gluNewQuadric()
+    glPushMatrix(); glTranslatef(0, 0.08, 0); glRotatef(-90, 1, 0, 0)
+    gluCylinder(q, 0.13, 0.0, 0.55, 8, 1)
+    gluDeleteQuadric(q); glPopMatrix()
+    # Garis putih
+    box(0, 0.30, 0, 0.15, 0.05, 0.15, 0.95, 0.95, 0.95)
+    glPopMatrix()
+
+def draw_pagar_konstruksi(cx, cz, panjang=2.0, rot_y=0):
+    """Pagar/barrier konstruksi oranye-putih."""
+    glPushMatrix(); glTranslatef(cx, 0, cz); glRotatef(rot_y, 0, 1, 0)
+    half = panjang / 2
+    # Tiang kiri & kanan
+    tiang_vertikal(-half, 0, 0, 0.06, 1.0, 6, 0.25, 0.25, 0.25)
+    tiang_vertikal( half, 0, 0, 0.06, 1.0, 6, 0.25, 0.25, 0.25)
+    # Panel oranye-putih berselang
+    for j in range(4):
+        xc = -half + (j + 0.5) * (panjang / 4)
+        c = (0.95, 0.45, 0.05) if j % 2 == 0 else (0.92, 0.92, 0.92)
+        box(xc, 0.55, 0, panjang/4 - 0.02, 0.35, 0.10, *c)
+    # Rel atas
+    box(0, 0.92, 0, panjang, 0.07, 0.10, 0.30, 0.30, 0.30)
+    glPopMatrix()
+
+def draw_tanda_konstruksi(cx, cz):
+    """Papan tanda 'UNDER CONSTRUCTION'."""
+    tiang_vertikal(cx, 0, cz, 0.05, 1.8, 6, 0.55, 0.35, 0.10)
+    # Papan kuning
+    box(cx, 1.95, cz, 1.20, 0.60, 0.08, 0.95, 0.80, 0.05)
+    box(cx, 1.95, cz, 1.30, 0.70, 0.06, 0.25, 0.18, 0.04)
+    # Strip diagonal hitam
+    for k in range(3):
+        ox = -0.35 + k * 0.35
+        box(cx + ox, 1.95, cz - 0.02, 0.12, 0.55, 0.05, 0.10, 0.10, 0.10)
+
+def draw_excavator_sederhana(cx, cz):
+    """Alat berat / excavator mini."""
+    glPushMatrix(); glTranslatef(cx, 0, cz)
+    # Badan bawah (track)
+    box(0, 0.18, 0,  2.2, 0.36, 1.0, 0.20, 0.18, 0.16)
+    # Roda track kiri kanan
+    for oz in (-0.55, 0.55):
+        silinder(-0.9, 0.18, oz, 0.18, 1.8, 8, 0.15, 0.15, 0.15)
+        silinder( 0.9, 0.18, oz, 0.18, 0.0, 8, 0.15, 0.15, 0.15)
+    # Kabin
+    box(0, 0.72, 0, 1.4, 0.65, 0.9, 0.88, 0.65, 0.10)
+    # Kaca kabin
+    box(0.60, 0.80, 0, 0.08, 0.40, 0.70, 0.60, 0.82, 0.92)
+    # Lengan boom
+    glPushMatrix(); glTranslatef(0.55, 1.05, 0); glRotatef(-40, 0, 0, 1)
+    box(0.50, 0.05, 0, 1.0, 0.14, 0.18, 0.55, 0.40, 0.10)
+    glTranslatef(1.0, 0, 0); glRotatef(50, 0, 0, 1)
+    box(0.35, 0.05, 0, 0.70, 0.12, 0.16, 0.50, 0.36, 0.08)
+    glTranslatef(0.70, 0, 0)
+    # Bucket
+    box(0.12, -0.15, 0, 0.35, 0.30, 0.28, 0.30, 0.25, 0.08)
+    glPopMatrix()
+    glPopMatrix()
+
+def draw_jalan_utara_konstruksi_dan_demo():
+    """
+    Jalan cabang utara (z=-28):
+    - Sisi luar (z=-31): zona konstruksi (cone, pagar, excavator, tanda)
+    - Sisi dalam (z=-25): zona demo rakyat (orang demo, spanduk, poster)
+    Area persimpangan (abs(x) < 9) tetap kosong.
+    """
+    CLEAR_X = 9.0
+
+    # ══ SISI LUAR z≈-31: KONSTRUKSI ══════════════════════════════════
+    # Deretan cone lalu lintas
+    for xc in range(-28, 29, 3):
+        if abs(xc) < CLEAR_X: continue
+        draw_cone_lalu_lintas(xc, -31.5)
+
+    # Pagar konstruksi berjejer
+    for xc in [-25, -18, -11, 11, 18, 25]:
+        draw_pagar_konstruksi(xc, -32.0, panjang=5.5, rot_y=0)
+
+    # Tanda konstruksi
+    for xc in [-22, -14, 13, 21]:
+        draw_tanda_konstruksi(xc, -33.0)
+
+    # Excavator di dua titik
+    draw_excavator_sederhana(-20, -33.5)
+    draw_excavator_sederhana( 18, -33.5)
+
+    # Material konstruksi: tumpukan pasir/batu (box)
+    for xc in [-16, -10, 14, 22]:
+        if abs(xc) < CLEAR_X: continue
+        box(xc, 0.20, -33.0, 1.8, 0.40, 1.2, 0.72, 0.60, 0.35)  # pasir
+        box(xc + 0.5, 0.10, -32.2, 0.8, 0.20, 0.8, 0.45, 0.42, 0.40)  # kerikil
+
+    # ══ SISI DALAM z≈-25: KONSTRUKSI (blokir kendaraan masuk) ════════
+    # Pagar konstruksi rapat menutup akses
+    for xc in [-26, -20, -14, 11, 17, 23]:
+        draw_pagar_konstruksi(xc, -25.0, panjang=5.5, rot_y=0)
+
+    # Cone rapat di garis masuk jalan
+    for xc in range(-28, 29, 2):
+        if abs(xc) < CLEAR_X: continue
+        draw_cone_lalu_lintas(xc, -25.8)
+
+    # Tanda konstruksi tambahan
+    for xc in [-24, -15, 12, 22]:
+        draw_tanda_konstruksi(xc, -24.2)
+
+    # Tumpukan material (pasir, kerikil, pipa)
+    for xc in [-22, -16, 13, 20]:
+        if abs(xc) < CLEAR_X: continue
+        box(xc,       0.22, -24.5, 2.0, 0.45, 1.0, 0.72, 0.60, 0.35)  # pasir
+        box(xc + 0.6, 0.12, -25.2, 1.0, 0.24, 0.9, 0.45, 0.42, 0.40)  # kerikil
+        # Tumpukan pipa (silinder horizontal)
+        for k in range(3):
+            glPushMatrix()
+            glTranslatef(xc - 0.5, 0.12 + k * 0.22, -23.8)
+            glRotatef(90, 0, 1, 0)
+            q = gluNewQuadric()
+            glColor3f(0.55, 0.55, 0.58)
+            gluCylinder(q, 0.10, 0.10, 1.2, 8, 1)
+            gluDisk(q, 0, 0.10, 8, 1)
+            glTranslatef(0, 0, 1.2); gluDisk(q, 0, 0.10, 8, 1)
+            gluDeleteQuadric(q)
+            glPopMatrix()
+
+    # ══ UJUNG BARAT (x negatif): blokir total akses masuk ════════════
+    # Pagar tegak lurus menutup ujung barat jalan cabang utara
+    for zc in [-32.5, -30.5, -28.0, -25.5]:
+        draw_pagar_konstruksi(-29.5, zc, panjang=3.5, rot_y=90)
+
+    # Cone di garis batas ujung barat
+    for zc_cone in [-32.0, -30.8, -29.6, -28.4, -27.2, -26.0, -24.8]:
+        draw_cone_lalu_lintas(-28.8, zc_cone)
+
+    # Tanda konstruksi di ujung
+    draw_tanda_konstruksi(-29.0, -31.0)
+    draw_tanda_konstruksi(-29.0, -25.5)
+
+    # Excavator di pojok barat
+    draw_excavator_sederhana(-27.5, -29.5)
+
+
+# ═══════════════════════════════════════════════
 #  PORTAL & PALANG
 # ═══════════════════════════════════════════════
 def draw_satu_palang(x, z, sudut, arah=1):
@@ -979,22 +1307,8 @@ class KendaraanCabang:
 
 
 def buat_kendaraan_cabang():
-    kd = []
-    # Jalan cabang z=-28 (utara): jalur kiri z=-27 arah+X, jalur kanan z=-29 arah-X
-    specs_utara_kiri  = [(-25,'mobil',0),(-10,'motor',2),(5,'mobil',4),(20,'mobil',1)]
-    specs_utara_kanan = [(25,'mobil',5),(10,'motor',3),(-5,'mobil',2),(-20,'mobil',6)]
-    for x,t,w in specs_utara_kiri:
-        kd.append(KendaraanCabang(x, -27.5, t, w, +1))
-    for x,t,w in specs_utara_kanan:
-        kd.append(KendaraanCabang(x, -28.5, t, w, -1))
-    # Jalan cabang z=+28 (selatan): jalur kiri z=+27.5 arah+X, jalur kanan z=+28.5 arah-X
-    specs_sel_kiri  = [(15,'mobil',1),(-5,'motor',3),(-20,'mobil',5),(28,'mobil',0)]
-    specs_sel_kanan = [(-15,'mobil',2),(5,'motor',4),(22,'mobil',6),(-28,'mobil',3)]
-    for x,t,w in specs_sel_kiri:
-        kd.append(KendaraanCabang(x, 27.5, t, w, +1))
-    for x,t,w in specs_sel_kanan:
-        kd.append(KendaraanCabang(x, 28.5, t, w, -1))
-    return kd
+    """Jalan cabang sekarang Car Free Day – tidak ada kendaraan."""
+    return []
 
 # ═══════════════════════════════════════════════
 #  SISTEM KAMERA
@@ -1395,7 +1709,7 @@ def main():
     if not glfw.init():
         raise RuntimeError("GLFW init gagal")
 
-    win = glfw.create_window(1200, 700, "Simulasi Perlintasan Kereta Api 3D", None, None)
+    win = glfw.create_window(1200, 700, "Simulasi Perlintasan Kereta Api 3D | Car Free Day Bazaar", None, None)
     if not win:
         glfw.terminate()
         raise RuntimeError("Window gagal dibuat")
@@ -1510,6 +1824,8 @@ def main():
         draw_portal(sim.palang, sim.merah)
         draw_bangunan()
         draw_stasiun()
+        draw_car_free_day()
+        draw_jalan_utara_konstruksi_dan_demo()
 
         # Driver mode: skip menggambar kendaraan yg kamera ada di dalamnya
         driver_idx = cam._driver_idx % len(kendaraan) if kendaraan else -1
