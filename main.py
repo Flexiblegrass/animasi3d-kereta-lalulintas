@@ -32,6 +32,7 @@ FASE_BUKA      = 3   # Palang sedang membuka
 CAM_OVERVIEW   = 1
 CAM_DRIVER     = 2
 CAM_TRACKSIDE  = 3
+CAM_FREE       = 4
 
 # ═══════════════════════════════════════════════
 #  HELPER GEOMETRI
@@ -1371,12 +1372,24 @@ class CameraSystem:
         # Indeks kendaraan aktif untuk driver mode
         self._driver_idx = 0
 
+        # ── FREE CAM state ────────────────────────────────
+        self._free_pos   = [0.0, 5.0, 20.0]
+        self._free_yaw   = 180.0
+        self._free_pitch = -10.0
+        self._free_speed = 8.0
+        self._free_sens  = 0.25
+        self._keys_held  = set()
+
     # ══════════════════════════════════════════
     #  INPUT CALLBACKS
     # ══════════════════════════════════════════
     def on_key(self, window, key, sc, act, mod, kendaraan_list=None):
         if kendaraan_list is None:
             kendaraan_list = []
+        if act == glfw.PRESS:
+            self._keys_held.add(key)
+        elif act == glfw.RELEASE:
+            self._keys_held.discard(key)
         if act in (glfw.PRESS, glfw.REPEAT):
             if key == glfw.KEY_ESCAPE:
                 glfw.set_window_should_close(window, True)
@@ -1390,6 +1403,11 @@ class CameraSystem:
             elif key == glfw.KEY_3:
                 self.mode = CAM_TRACKSIDE
                 print("[CAM] Mode 3 – Trackside")
+            elif key == glfw.KEY_4:
+                self.mode = CAM_FREE
+                print("[CAM] Mode 4 – FREE CAM")
+                print("       W/S=Maju/Mundur | A/D=Kiri/Kanan | Q/E=Turun/Naik")
+                print("       SHIFT=Cepat | Mouse drag kiri=Putar pandang | Scroll=Zoom")
             elif key == glfw.KEY_EQUAL:
                 self.dist = max(5.0, self.dist - 1.5)
             elif key == glfw.KEY_MINUS:
@@ -1413,24 +1431,81 @@ class CameraSystem:
               f"  arah={'→+Z' if k.arah==1 else '→-Z'}")
 
     def on_mouse_button(self, window, button, act, mod):
-        if button == glfw.MOUSE_BUTTON_LEFT:
+        if button == glfw.MOUSE_BUTTON_LEFT or button == glfw.MOUSE_BUTTON_MIDDLE:
             self._mdown = (act == glfw.PRESS)
             if self._mdown:
                 self._mx, self._my = glfw.get_cursor_pos(window)
 
     def on_cursor(self, window, xpos, ypos):
-        if self._mdown and self.mode == CAM_OVERVIEW:
-            self.yaw   += (xpos - self._mx) * 0.4
-            self.pitch  = max(5.0, min(85.0, self.pitch + (ypos - self._my) * 0.3))
-            self._mx, self._my = xpos, ypos
+        dx = xpos - self._mx
+        dy = ypos - self._my
+        self._mx, self._my = xpos, ypos
+        if self.mode == CAM_OVERVIEW and self._mdown:
+            self.yaw   += dx * 0.4
+            self.pitch  = max(5.0, min(85.0, self.pitch + dy * 0.3))
+        elif self.mode == CAM_FREE and self._mdown:
+            self._free_yaw   += dx * self._free_sens
+            self._free_pitch -= dy * self._free_sens
+            self._free_pitch  = max(-89.0, min(89.0, self._free_pitch))
 
     def on_scroll(self, window, xoff, yoff):
         if self.mode == CAM_OVERVIEW:
             self.dist = max(5.0, min(50.0, self.dist - yoff * 1.0))
+        elif self.mode == CAM_FREE:
+            fwd = self._free_forward_vec()
+            for i in range(3):
+                self._free_pos[i] += fwd[i] * yoff * 3.0
 
     # ══════════════════════════════════════════
     #  KALKULASI TARGET KAMERA
     # ══════════════════════════════════════════
+
+    def _free_forward_vec(self):
+        yr = math.radians(self._free_yaw)
+        pr = math.radians(self._free_pitch)
+        return [
+            math.cos(pr) * math.sin(yr),
+            math.sin(pr),
+            math.cos(pr) * math.cos(yr),
+        ]
+
+    def _free_right_vec(self):
+        yr = math.radians(self._free_yaw)
+        return [-math.cos(yr), 0.0, math.sin(yr)]
+
+    def update_free_cam(self, dt, window=None):
+        if self.mode != CAM_FREE:
+            return
+        shift = (glfw.KEY_LEFT_SHIFT  in self._keys_held or
+                 glfw.KEY_RIGHT_SHIFT in self._keys_held)
+        spd   = self._free_speed * (3.0 if shift else 1.0)
+        fwd   = self._free_forward_vec()
+        right = self._free_right_vec()
+        move  = [0.0, 0.0, 0.0]
+        if glfw.KEY_W in self._keys_held:
+            for i in range(3): move[i] += fwd[i]
+        if glfw.KEY_S in self._keys_held:
+            for i in range(3): move[i] -= fwd[i]
+        if glfw.KEY_D in self._keys_held:
+            for i in range(3): move[i] += right[i]
+        if glfw.KEY_A in self._keys_held:
+            for i in range(3): move[i] -= right[i]
+        if glfw.KEY_E in self._keys_held:
+            move[1] += 1.0
+        if glfw.KEY_Q in self._keys_held:
+            move[1] -= 1.0
+        mag = math.sqrt(sum(v * v for v in move))
+        if mag > 1e-6:
+            move = [v / mag for v in move]
+        for i in range(3):
+            self._free_pos[i] += move[i] * spd * dt
+
+    def _target_free(self):
+        fwd    = self._free_forward_vec()
+        eye    = list(self._free_pos)
+        center = [eye[i] + fwd[i] for i in range(3)]
+        return eye, center, [0.0, 1.0, 0.0]
+
     def _target_overview(self):
         pr = math.radians(self.pitch)
         yr = math.radians(self.yaw)
@@ -1513,6 +1588,9 @@ class CameraSystem:
         elif self.mode == CAM_DRIVER:
             eye_t, cen_t, up_t = self._target_driver(kendaraan_list)
             smooth = self._smooth_drv
+        elif self.mode == CAM_FREE:
+            eye_t, cen_t, up_t = self._target_free()
+            smooth = 1.0
         else:
             eye_t, cen_t, up_t = self._target_trackside()
             smooth = self._smooth_ov
@@ -1536,6 +1614,7 @@ class CameraSystem:
             CAM_OVERVIEW:  '1-Overview',
             CAM_DRIVER:    f'2-Driver[#{self._driver_idx+1}]',
             CAM_TRACKSIDE: '3-Trackside',
+               CAM_FREE:      '4-FreeCam',
         }.get(self.mode, '?')
 
 
@@ -1741,7 +1820,7 @@ def main():
             elif key == glfw.KEY_F:
                 sim.speed_mul = min(4.0, sim.speed_mul + 0.5)
                 print(f"[SIM] Speed x{sim.speed_mul:.1f}")
-            elif key == glfw.KEY_S:
+            elif key == glfw.KEY_S and cam.mode != CAM_FREE:
                 sim.speed_mul = max(0.5, sim.speed_mul - 0.5)
                 print(f"[SIM] Speed x{sim.speed_mul:.1f}")
 
@@ -1786,6 +1865,7 @@ def main():
         adt = 0.0 if sim.paused else dt   # ← dt=0 saat pause
 
         sim.update(dt)  # sim.update pakai dt asli (biar tombol tetap respons)
+        cam.update_free_cam(dt, win)
 
         for kc in kend_cabang:
             kc.update(adt)   # ← pakai adt
