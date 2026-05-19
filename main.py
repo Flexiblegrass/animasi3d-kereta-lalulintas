@@ -87,12 +87,12 @@ def draw_pohon(x, z):
     gluDeleteQuadric(q); glPopMatrix()
 
 def draw_jalan():
-    box(0,-0.05, 0, 100,0.10,70,  0.25,0.45,0.18)
+    box(0,-0.05, 0, 100,0.10,60,  0.25,0.45,0.18)
     box(0, 0.02, 0, 100,0.04,3.5, 0.48,0.46,0.44)
-    box(0, 0.03, 0, 8.0,0.06,70,  0.20,0.20,0.22)
-    for i in range(-17,18):
+    box(0, 0.03, 0, 8.0,0.06,60,  0.20,0.20,0.22)
+    for i in range(-14,15):
         zi = i * 2.0
-        if abs(zi) < 4.5: continue          # area rel
+        if abs(zi) < 2.5: continue          # area rel
         if 5.0 <= abs(zi) <= 9.0: continue  # area zebra cross (z=±7)
         box(0, 0.07, zi, 0.15,0.01,1.0, 0.9,0.9,0.9)
     box(0, 0.03,-4.5, 8.0,0.05,1.0, 0.16,0.16,0.18)
@@ -113,27 +113,17 @@ def draw_jalan_cabang():
 
     for zc in (-28.0, 28.0):
         # Badan jalan cabang (sumbu X, lebar 6, panjang 60)
-        # Jalan cabang kiri (x negatif), skip area jalan utama
-        box(-26, 0.04, zc, 44, 0.06, 6.0, *aspal)   # x: -48 s/d -4
-        # Jalan cabang kanan (x positif), skip area jalan utama
-        box( 26, 0.04, zc, 44, 0.06, 6.0, *aspal)   # x: +4 s/d +48
+        box(0, 0.04, zc, 60, 0.06, 6.0, *aspal)
         # Bahu jalan / shoulder
-       # Bahu kiri
-        box(-26, 0.035, zc-3.2, 44, 0.04, 0.6, *bahu)
-        box(-26, 0.035, zc+3.2, 44, 0.04, 0.6, *bahu)
-        # Bahu kanan
-        box( 26, 0.035, zc-3.2, 44, 0.04, 0.6, *bahu)
-        box( 26, 0.035, zc+3.2, 44, 0.04, 0.6, *bahu)
-        # Marka tengah kiri
+        box(0, 0.035, zc-3.2, 60, 0.04, 0.6, *bahu)
+        box(0, 0.035, zc+3.2, 60, 0.04, 0.6, *bahu)
+        # Marka tengah putus-putus
         for xi in range(-14, 15):
             xi2 = xi * 2.2
-            if -4 < xi2 < 4: continue   # skip area jalan utama
-            if 4.0 < abs(xi2) < 7.0: continue  # skip area zebra cross (x=±5.25)
-            box(xi2, 0.08, zc, 1.0, 0.01, 0.15, *marka)
-        # Marka tepi kiri & kanan (skip tengah)
-        for sign_x in (-1, 1):
-            box(sign_x * 26, 0.075, zc-2.6, 40, 0.01, 0.12, *marka)
-            box(sign_x * 26, 0.075, zc+2.6, 40, 0.01, 0.12, *marka)
+            box(xi2, 0.08, zc, 0.15, 0.01, 1.0, *marka)
+        # Marka tepi solid
+        box(0, 0.075, zc-2.6, 60, 0.01, 0.12, *marka)
+        box(0, 0.075, zc+2.6, 60, 0.01, 0.12, *marka)
 
         # Trotoar sisi jalan cabang — skip area persimpangan (x=±8)
         gap_x = 8.0
@@ -163,13 +153,12 @@ def draw_jalan_cabang():
         # Ramp vertikal (sumbu Z) menghubungkan jalan utama ke jalan cabang
         box(xc, 0.04, 0, 4.0, 0.06, 56, *aspal)
         # Marka tepi ramp
-        box(xc-1.8, 0.065, 0, 0.12, 0.01, 46, *marka)
-        box(xc+1.8, 0.065, 0, 0.12, 0.01, 46, *marka)
+        box(xc-1.8, 0.065, 0, 0.12, 0.01, 56, *marka)
+        box(xc+1.8, 0.065, 0, 0.12, 0.01, 56, *marka)
         # Marka tengah putus-putus ramp
         for zi in range(-13, 14):
             zi2 = zi * 2.0
             if abs(zi2) < 3: continue
-            if abs(zi2) > 23: continue   # skip area jalan cabang
             box(xc, 0.07, zi2, 0.12, 0.01, 1.0, *marka)
         # Trotoar ramp — dibagi dua, skip area persimpangan jalan utama (z=±8)
         gap_z = 8.0
@@ -705,22 +694,11 @@ def draw_zebra_dan_trotoar():
     trot = (0.68, 0.66, 0.63)
     kerb = (0.45, 0.43, 0.41)
     # Trotoar (lebar 1.5, sepanjang jalan, y sedikit lebih tinggi dari aspal)
-    # Segmen tengah (asli)
-    box( 5.25, 0.12,  0, 1.5, 0.24, 44, *trot)
-    box(-5.25, 0.12,  0, 1.5, 0.24, 44, *trot)
-    # Ujung utara (z=-34 s/d -22)
-    box( 5.25, 0.12, -28, 1.5, 0.24, 14, *trot)
-    box(-5.25, 0.12, -28, 1.5, 0.24, 14, *trot)
-    # Ujung selatan (z=+22 s/d +34)
-    box( 5.25, 0.12,  28, 1.5, 0.24, 14, *trot)
-    box(-5.25, 0.12,  28, 1.5, 0.24, 14, *trot)
+    box( 5.25, 0.12, 0, 1.5, 0.24, 60, *trot)
+    box(-5.25, 0.12, 0, 1.5, 0.24, 60, *trot)
     # Kanstin / kerb pemisah jalan-trotoar
-    box( 4.05, 0.06,  0, 0.12, 0.14, 44, *kerb)
-    box(-4.05, 0.06,  0, 0.12, 0.14, 44, *kerb)
-    box( 4.05, 0.06, -28, 0.12, 0.14, 14, *kerb)
-    box(-4.05, 0.06, -28, 0.12, 0.14, 14, *kerb)
-    box( 4.05, 0.06,  28, 0.12, 0.14, 14, *kerb)
-    box(-4.05, 0.06,  28, 0.12, 0.14, 14, *kerb)
+    box( 4.05, 0.06, 0, 0.12, 0.14, 60, *kerb)
+    box(-4.05, 0.06, 0, 0.12, 0.14, 60, *kerb)
     # Garis nat ubin trotoar (tiap 1.5 unit)
     for sz in range(-29, 30, 2):
         box( 5.25, 0.245, sz, 1.5, 0.005, 0.06, 0.55, 0.53, 0.51)
@@ -740,7 +718,6 @@ def draw_zebra_dan_trotoar():
         for i in range(n):
             xs = x0 + i * (lebar + celah) + lebar / 2
             box(xs, 0.055, zc, lebar, 0.02, 4.0, 0.93, 0.93, 0.93)
-            
 
 def draw_portal(sudut, merah):
     draw_satu_palang(-4.5,-2.5, sudut, arah=+1)
@@ -1843,7 +1820,7 @@ def main():
             elif key == glfw.KEY_F:
                 sim.speed_mul = min(4.0, sim.speed_mul + 0.5)
                 print(f"[SIM] Speed x{sim.speed_mul:.1f}")
-            elif key == glfw.KEY_S and cam.mode != CAM_FREE:
+            elif key == glfw.KEY_G and cam.mode != CAM_FREE:
                 sim.speed_mul = max(0.5, sim.speed_mul - 0.5)
                 print(f"[SIM] Speed x{sim.speed_mul:.1f}")
 
@@ -1868,9 +1845,9 @@ def main():
     print("=" * 65)
     print(" Simulasi Perlintasan Kereta Api 3D")
     print("=" * 65)
-    print(" [1] Overview   [2] Driver POV   [3] Trackside")
+    print(" [1] Overview   [2] Driver POV   [3] Trackside    [4] Free Cam")
     print(" [TAB/N] Kendaraan berikutnya   [P] Kendaraan sebelumnya")
-    print(" [SPACE] Pause/Resume   [F] Speed Up   [S] Slow Down")
+    print(" [SPACE] Pause/Resume   [F] Speed Up   [G] Slow Down")
     print(" DRAG = putar kamera   SCROLL = zoom   [ESC] = Keluar")
     print("=" * 65)
 
